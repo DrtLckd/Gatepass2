@@ -4,9 +4,9 @@
  */
 package panels;
 
-import com.mycompany.leninsystem.RFQ_dsb;
-import com.mycompany.leninsystem.home_dsb;
-import com.mycompany.leninsystem.bidding_dsb;
+import com.mycompany.liecap.RFQ_dsb;
+import com.mycompany.liecap.home_dsb;
+import com.mycompany.liecap.bidding_dsb;
 import javax.swing.JOptionPane;
 import javax.swing.JFrame;
 import java.util.ArrayList;
