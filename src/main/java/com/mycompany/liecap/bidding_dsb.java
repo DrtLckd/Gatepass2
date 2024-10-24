@@ -2,7 +2,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
-package com.mycompany.leninsystem;
+package com.mycompany.liecap;
 
 import panels.sidebar_dsb;
 
@@ -10,19 +10,18 @@ import panels.sidebar_dsb;
  *
  * @author predator 300
  */
-public class home_dsb extends javax.swing.JFrame {
+public class bidding_dsb extends javax.swing.JFrame {
 
-    
     private sidebar_dsb sidebar;
     /**
      * Creates new form RFQ_dsb
      */
     
-    public home_dsb() {
+    public bidding_dsb() {
         initComponents();
     }
     
-    public home_dsb(sidebar_dsb sidebar) {
+    public bidding_dsb(sidebar_dsb sidebar) {
         this.sidebar = sidebar;
         initComponents();
     }
@@ -37,7 +36,7 @@ public class home_dsb extends javax.swing.JFrame {
     private void initComponents() {
 
         body_login1 = new panels.body_login();
-        sidebar_dsb1 = new panels.sidebar_dsb();
+        sidebar_dsb2 = new panels.sidebar_dsb();
         jLabel1 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -47,25 +46,25 @@ public class home_dsb extends javax.swing.JFrame {
 
         jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel1.setText("Home");
+        jLabel1.setText("Bidding");
 
         javax.swing.GroupLayout body_login1Layout = new javax.swing.GroupLayout(body_login1);
         body_login1.setLayout(body_login1Layout);
         body_login1Layout.setHorizontalGroup(
             body_login1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(body_login1Layout.createSequentialGroup()
-                .addComponent(sidebar_dsb1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(238, 238, 238)
+                .addComponent(sidebar_dsb2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 233, Short.MAX_VALUE)
                 .addComponent(jLabel1)
-                .addContainerGap(246, Short.MAX_VALUE))
+                .addGap(230, 230, 230))
         );
         body_login1Layout.setVerticalGroup(
             body_login1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, body_login1Layout.createSequentialGroup()
+                .addGap(0, 0, Short.MAX_VALUE)
+                .addComponent(sidebar_dsb2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
             .addGroup(body_login1Layout.createSequentialGroup()
-                .addComponent(sidebar_dsb1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, Short.MAX_VALUE))
-            .addGroup(body_login1Layout.createSequentialGroup()
-                .addGap(25, 25, 25)
+                .addGap(28, 28, 28)
                 .addComponent(jLabel1)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
@@ -78,9 +77,7 @@ public class home_dsb extends javax.swing.JFrame {
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addComponent(body_login1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, Short.MAX_VALUE))
+            .addComponent(body_login1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
 
         pack();
@@ -117,7 +114,7 @@ public class home_dsb extends javax.swing.JFrame {
 //        /* Create and display the form */
 //        java.awt.EventQueue.invokeLater(new Runnable() {
 //            public void run() {
-//                new home_dsb().setVisible(true);
+//                new RFQ_dsb().setVisible(true);
 //            }
 //        });
 //    }
@@ -125,6 +122,6 @@ public class home_dsb extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private panels.body_login body_login1;
     private javax.swing.JLabel jLabel1;
-    private panels.sidebar_dsb sidebar_dsb1;
+    private panels.sidebar_dsb sidebar_dsb2;
     // End of variables declaration//GEN-END:variables
 }
