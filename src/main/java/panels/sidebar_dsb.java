@@ -4,7 +4,6 @@
  */
 package panels;
 
-import com.mycompany.liecap.RFQ_dsb;
 import com.mycompany.liecap.home_dsb;
 import com.mycompany.liecap.bidding_dsb;
 import javax.swing.JOptionPane;
@@ -59,8 +58,6 @@ public class sidebar_dsb extends javax.swing.JPanel {
 
         jDesktopPane1.setBackground(new java.awt.Color(0, 0, 102));
 
-        jLabel2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Lenin_Logo 100x100.png"))); // NOI18N
-
         Home.setFont(new java.awt.Font("Helvetica", 1, 25)); // NOI18N
         Home.setForeground(new java.awt.Color(255, 255, 255));
         Home.setText("HOME");
@@ -79,7 +76,7 @@ public class sidebar_dsb extends javax.swing.JPanel {
 
         RFQ.setFont(new java.awt.Font("Helvetica", 1, 25)); // NOI18N
         RFQ.setForeground(new java.awt.Color(255, 255, 255));
-        RFQ.setText("QUOTATION");
+        RFQ.setText("DATABASE");
         RFQ.setBorder(null);
         RFQ.setBorderPainted(false);
         RFQ.setContentAreaFilled(false);
@@ -95,7 +92,7 @@ public class sidebar_dsb extends javax.swing.JPanel {
 
         Bidding.setFont(new java.awt.Font("Helvetica", 1, 25)); // NOI18N
         Bidding.setForeground(new java.awt.Color(255, 255, 255));
-        Bidding.setText("BIDDING");
+        Bidding.setText("VISITOR");
         Bidding.setBorder(null);
         Bidding.setBorderPainted(false);
         Bidding.setContentAreaFilled(false);
@@ -147,7 +144,7 @@ public class sidebar_dsb extends javax.swing.JPanel {
                             .addComponent(Bidding, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(RFQ, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(Home, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
-                .addContainerGap(31, Short.MAX_VALUE))
+                .addContainerGap(40, Short.MAX_VALUE))
         );
         jDesktopPane1Layout.setVerticalGroup(
             jDesktopPane1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -198,9 +195,9 @@ public class sidebar_dsb extends javax.swing.JPanel {
         if (currentFrame != null) {
             currentFrame.dispose();
         }
-        RFQ_dsb rfq_dsb = new RFQ_dsb(); // Create a new RFQ_dsb frame
-        rfq_dsb.setVisible(true); // Set the new frame to visible
-        openFrames.add(rfq_dsb); // Add the new frame to the list of open frames
+//        RFQ_dsb rfq_dsb = new RFQ_dsb(); // Create a new RFQ_dsb frame
+//        rfq_dsb.setVisible(true); // Set the new frame to visible
+//        openFrames.add(rfq_dsb); // Add the new frame to the list of open frames
     }//GEN-LAST:event_RFQActionPerformed
 
     private void BiddingActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BiddingActionPerformed

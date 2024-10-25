@@ -38,7 +38,7 @@ public class login extends javax.swing.JFrame {
      */
     public login() {
         dbConfig = new db_config();
-        database = dbConfig.getDatabase();
+//        database = dbConfig.getDatabase();
         sidebar = new sidebar_dsb();
         initComponents();
     }
