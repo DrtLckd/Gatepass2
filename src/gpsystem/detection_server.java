@@ -30,32 +30,7 @@ public class detection_server extends NanoHTTPD {
                 String receivedData = postData.get("postData");
                 System.out.println("Received data: " + receivedData);
 
-                // Parse the received JSON data
-                JsonObject jsonObject = JsonParser.parseString(receivedData).getAsJsonObject();
-                JsonArray detections = jsonObject.getAsJsonArray("detections"); // Handle batch detections
-
-                // Process each detection
-                for (int i = 0; i < detections.size(); i++) {
-                    JsonObject detection = detections.get(i).getAsJsonObject();
-                    String type = detection.get("type").getAsString();
-                    JsonObject coordinates = detection.getAsJsonObject("coordinates");
-
-                    int xmin = coordinates.get("xmin").getAsInt();
-                    int ymin = coordinates.get("ymin").getAsInt();
-                    int xmax = coordinates.get("xmax").getAsInt();
-                    int ymax = coordinates.get("ymax").getAsInt();
-
-                    System.out.printf("Processing Detection %d: Type=%s, Coordinates=(%d, %d, %d, %d)%n",
-                            i + 1, type, xmin, ymin, xmax, ymax);
-
-                    // Assuming the screengrab path is provided dynamically
-                    String screengrabPath = "captures/screengrab.jpg"; // Replace with actual path
-                    String outputPath = "processed/cropped_" + System.currentTimeMillis() + ".jpg";
-
-                    // Forward data to image_preprocess
-                    image_preprocess.preprocessAndSave(screengrabPath, outputPath, xmin, ymin, xmax, ymax);
-                }
-
+                // Store detections in memory or pass them to rtsp_capture via another mechanism
                 return newFixedLengthResponse(Response.Status.OK, "application/json", "{\"status\":\"success\"}");
             } catch (Exception e) {
                 e.printStackTrace();

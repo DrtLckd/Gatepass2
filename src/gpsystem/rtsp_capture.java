@@ -123,15 +123,16 @@ public class rtsp_capture {
     private void handleDetectionData(String detectionData) {
         System.out.println("Raw Detection Data: " + detectionData);
 
-        File screengrabFile = new File(CAPTURE_DIR + File.separator + "screengrab.jpg");
-        if (!screengrabFile.exists()) {
-            System.out.println("No screengrab available at: " + screengrabFile.getAbsolutePath());
-            return;
-        }
-
         try {
             com.google.gson.JsonObject jsonObject = com.google.gson.JsonParser.parseString(detectionData).getAsJsonObject();
             com.google.gson.JsonArray detections = jsonObject.getAsJsonArray("detections");
+
+            // Take a screengrab first
+            String capturePath = CAPTURE_DIR + File.separator + "screengrab.jpg";
+            if (!mediaPlayer.snapshots().save(new File(capturePath))) {
+                System.out.println("Failed to capture screengrab.");
+                return;
+            }
 
             for (int i = 0; i < detections.size(); i++) {
                 com.google.gson.JsonObject detection = detections.get(i).getAsJsonObject();
@@ -146,13 +147,25 @@ public class rtsp_capture {
                 System.out.printf("Processing Detection %d: Type=%s, Coordinates=(%d, %d, %d, %d)%n",
                         i + 1, type, xmin, ymin, xmax, ymax);
 
-                // Capture and process the frame
-                captureAndProcessFrame(xmin, ymin, xmax, ymax);
+                // Crop the image
+                Mat originalImage = image_preprocess.loadImage(capturePath);
+                if (originalImage.empty()) {
+                    System.out.println("Failed to load screengrab for cropping.");
+                    return;
+                }
+
+                Mat croppedImage = image_preprocess.cropToROI(originalImage, xmin, ymin, xmax, ymax);
+
+                // Save the cropped image
+                String croppedPath = PROCESSED_DIR + File.separator + "cropped_" + System.currentTimeMillis() + ".jpg";
+                Imgcodecs.imwrite(croppedPath, croppedImage);
+                System.out.println("Cropped image saved to: " + croppedPath);
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
+
 
     
     private void captureAndProcessFrame(int xmin, int ymin, int xmax, int ymax) {
