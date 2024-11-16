@@ -1,5 +1,6 @@
-package gpsystem;
+package gpsystem.old;
 
+import gpsystem.image_preprocess;
 import uk.co.caprica.vlcj.player.base.MediaPlayer;
 import uk.co.caprica.vlcj.player.base.MediaPlayerEventAdapter;
 
@@ -11,14 +12,14 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-public class rtsp_capture {
+public class rtsp_capture2 {
     private MediaPlayer mediaPlayer;
     private Timer detectionTimer;
     private static final String CAPTURE_DIR = "captures"; // Directory for saving images
     private static final String PROCESSED_DIR = "processed"; // Directory for processed images
     private static final String DETECTION_SERVER_URL = "http://localhost:5000"; // Detection server URL
 
-    public rtsp_capture(MediaPlayer mediaPlayer) {
+    public rtsp_capture2(MediaPlayer mediaPlayer) {
         this.mediaPlayer = mediaPlayer;
         setupDirectories();
         setupDetectionListener();
