@@ -10,8 +10,6 @@ import java.io.File;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import org.opencv.core.Mat;
-import org.opencv.imgcodecs.Imgcodecs;
 
 public class rtsp_capture {
     private MediaPlayer mediaPlayer;
@@ -38,18 +36,14 @@ public class rtsp_capture {
         }
     }
 
+    // Ensure necessary directories exist
     private void setupDirectories() {
         File captureDir = new File(CAPTURE_DIR);
-        if (!captureDir.exists() && !captureDir.mkdir()) {
-            System.err.println("Failed to create capture directory: " + CAPTURE_DIR);
-        }
+        if (!captureDir.exists()) captureDir.mkdir();
 
         File processedDir = new File(PROCESSED_DIR);
-        if (!processedDir.exists() && !processedDir.mkdir()) {
-            System.err.println("Failed to create processed directory: " + PROCESSED_DIR);
-        }
+        if (!processedDir.exists()) processedDir.mkdir();
     }
-
 
     private void setupDetectionListener() {
         detectionTimer = new Timer(1000, new ActionListener() {
@@ -121,93 +115,50 @@ public class rtsp_capture {
     }
 
     private void handleDetectionData(String detectionData) {
-        System.out.println("Raw Detection Data: " + detectionData);
+        System.out.println("Raw Detection Data: " + detectionData); // Log the received data
 
         try {
-            com.google.gson.JsonObject jsonObject = com.google.gson.JsonParser.parseString(detectionData).getAsJsonObject();
-            com.google.gson.JsonArray detections = jsonObject.getAsJsonArray("detections");
-
-            // Take a screengrab first
-            String capturePath = CAPTURE_DIR + File.separator + "screengrab.jpg";
-            if (!mediaPlayer.snapshots().save(new File(capturePath))) {
-                System.out.println("Failed to capture screengrab.");
+            File screengrabFile = new File("captures/screengrab.jpg");
+            if (!screengrabFile.exists()) {
+                System.out.println("No screengrab available. Skipping detection processing.");
                 return;
             }
 
-            for (int i = 0; i < detections.size(); i++) {
-                com.google.gson.JsonObject detection = detections.get(i).getAsJsonObject();
-                String type = detection.get("type").getAsString();
-                com.google.gson.JsonObject coordinates = detection.getAsJsonObject("coordinates");
+            com.google.gson.JsonObject jsonObject = com.google.gson.JsonParser.parseString(detectionData).getAsJsonObject();
+            com.google.gson.JsonObject coordinates = jsonObject.getAsJsonObject("coordinates");
 
-                int xmin = coordinates.get("xmin").getAsInt();
-                int ymin = coordinates.get("ymin").getAsInt();
-                int xmax = coordinates.get("xmax").getAsInt();
-                int ymax = coordinates.get("ymax").getAsInt();
+            int xmin = coordinates.get("xmin").getAsInt();
+            int ymin = coordinates.get("ymin").getAsInt();
+            int xmax = coordinates.get("xmax").getAsInt();
+            int ymax = coordinates.get("ymax").getAsInt();
 
-                System.out.printf("Processing Detection %d: Type=%s, Coordinates=(%d, %d, %d, %d)%n",
-                        i + 1, type, xmin, ymin, xmax, ymax);
+            String type = jsonObject.get("type").getAsString();
 
-                // Crop the image
-                Mat originalImage = image_preprocess.loadImage(capturePath);
-                if (originalImage.empty()) {
-                    System.out.println("Failed to load screengrab for cropping.");
-                    return;
-                }
+            System.out.println("Detection received: Type=" + type + ", Coordinates=" + xmin + "," + ymin + "," + xmax + "," + ymax);
 
-                Mat croppedImage = image_preprocess.cropToROI(originalImage, xmin, ymin, xmax, ymax);
+            captureAndProcessFrame(xmin, ymin, xmax, ymax);
 
-                // Save the cropped image
-                String croppedPath = PROCESSED_DIR + File.separator + "cropped_" + System.currentTimeMillis() + ".jpg";
-                Imgcodecs.imwrite(croppedPath, croppedImage);
-                System.out.println("Cropped image saved to: " + croppedPath);
-            }
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
-
-
     
     private void captureAndProcessFrame(int xmin, int ymin, int xmax, int ymax) {
-        // Take a screengrab
-        String capturePath = CAPTURE_DIR + File.separator + "screengrab.jpg";
+        String capturePath = CAPTURE_DIR + File.separator + "capture_" + System.currentTimeMillis() + ".jpg";
         File captureFile = new File(capturePath);
-
-        System.out.println("Attempting to save screengrab to: " + capturePath);
-
-        // Check if mediaPlayer is playing
-        if (!mediaPlayer.status().isPlaying()) {
-            System.out.println("MediaPlayer is not playing. Cannot capture screengrab.");
-            return;
-        }
 
         boolean result = mediaPlayer.snapshots().save(captureFile);
 
         if (result) {
-            System.out.println("Screengrab saved successfully to: " + capturePath);
+            System.out.println("Screengrab saved: " + capturePath);
 
-            // Crop the screengrab using coordinates
-            Mat originalImage = image_preprocess.loadImage(capturePath);
-            if (originalImage.empty()) {
-                System.out.println("Failed to load screengrab for cropping.");
-                return;
-            }
-
-            Mat croppedImage = image_preprocess.cropToROI(originalImage, xmin, ymin, xmax, ymax);
-
-            // Save the cropped image
-            String croppedPath = PROCESSED_DIR + File.separator + "cropped_" + System.currentTimeMillis() + ".jpg";
-            Imgcodecs.imwrite(croppedPath, croppedImage);
-            System.out.println("Cropped image saved to: " + croppedPath);
-
-            // Pass the cropped image to pre-processing
+            // Pass image for preprocessing
             String processedPath = PROCESSED_DIR + File.separator + "processed_" + System.currentTimeMillis() + ".jpg";
-            image_preprocess.preprocessAndSave(croppedPath, processedPath, xmin, ymin, xmax, ymax);
+            image_preprocess.preprocessAndSave(capturePath, processedPath, xmin, ymin, xmax, ymax);
 
-            System.out.println("Processed image saved to: " + processedPath);
+            System.out.println("Processed image saved: " + processedPath);
         } else {
-            System.out.println("Failed to save screengrab. Check MediaPlayer and file path.");
+            System.out.println("Failed to save screengrab.");
         }
     }
-
 }

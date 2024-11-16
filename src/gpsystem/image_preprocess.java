@@ -48,10 +48,16 @@ public class image_preprocess {
         return denoisedImage;
     }
 
-    public static Mat cropToROI(Mat image, int xmin, int ymin, int xmax, int ymax) {
-        Rect roi = new Rect(xmin, ymin, xmax - xmin, ymax - ymin);
-        return new Mat(image, roi);
-    }
+//    public static Mat cropToROI(Mat image, int xmin, int ymin, int xmax, int ymax) {
+//        try {
+//            Rect roi = new Rect(xmin, ymin, xmax - xmin, ymax - ymin);
+//            return new Mat(image, roi);
+//        } catch (CvException e) {
+//            System.err.println("Invalid ROI for cropping: " + e.getMessage());
+//            return new Mat(); // Return an empty Mat for invalid ROI
+//        }
+//    }
+
 
     // Binary Thresholding (Strict Threshold)
     public static Mat applyStrictThreshold(Mat image) {
@@ -97,12 +103,12 @@ public class image_preprocess {
             Mat denoisedImage = reduceNoise(contrastImage);
             Imgcodecs.imwrite("processed/noise_reduced.jpg", denoisedImage);
 
-            // Cropping Using ROI
-            Mat croppedImage = cropToROI(denoisedImage, xmin, ymin, xmax, ymax);
-            Imgcodecs.imwrite("processed/cropped_image.jpg", croppedImage);
+//            // Cropping Using ROI
+//            Mat croppedImage = cropToROI(denoisedImage, xmin, ymin, xmax, ymax);
+//            Imgcodecs.imwrite("processed/cropped_image.jpg", croppedImage);
 
             // Binary Thresholding
-            Mat binaryImage = applyStrictThreshold(croppedImage);
+            Mat binaryImage = applyStrictThreshold(contrastImage); //croppedImage
             Imgcodecs.imwrite(outputPath, binaryImage);
 
             System.out.println("Image processed and saved to: " + outputPath);

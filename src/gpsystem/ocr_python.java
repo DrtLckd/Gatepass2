@@ -8,7 +8,8 @@ public class ocr_python {
     public static void main(String[] args) {
         try {
             // Reference the existing processed image
-            String processedImagePath = "D:\\Downloads\\Thesis\\javaTest\\processed_image.jpg";
+//            String processedImagePath = "D:\\Downloads\\Thesis\\javaTest\\processed_image.jpg";
+            String processedImagePath = "D:\\NetBeansProjects\\Gatepass2\\processed\\final_image.jpg";
 
             // Path to your Python OCR script
             String pythonScriptPath = "D:\\Downloads\\Thesis\\ocr_script.py"; // Update with the actual path to ocr_script.py

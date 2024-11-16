@@ -1,11 +1,9 @@
 package gpsystem;
 
 import fi.iki.elonen.NanoHTTPD;
-import com.google.gson.JsonArray;
+import java.util.Map;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-
-import java.util.Map;
 
 public class detection_server extends NanoHTTPD {
 
@@ -30,14 +28,29 @@ public class detection_server extends NanoHTTPD {
                 String receivedData = postData.get("postData");
                 System.out.println("Received data: " + receivedData);
 
-                // Store detections in memory or pass them to rtsp_capture via another mechanism
+                // Parse JSON to extract coordinates
+                JsonObject jsonObject = JsonParser.parseString(receivedData).getAsJsonObject();
+                JsonObject coordinates = jsonObject.getAsJsonObject("coordinates");
+
+                int xmin = coordinates.get("xmin").getAsInt();
+                int ymin = coordinates.get("ymin").getAsInt();
+                int xmax = coordinates.get("xmax").getAsInt();
+                int ymax = coordinates.get("ymax").getAsInt();
+                String type = jsonObject.get("type").getAsString();
+
+                // Assuming the screengrab path is provided dynamically
+                String screengrabPath = "captures/screengrab.jpg"; // Replace with the actual path
+                String outputPath = "processed/cropped_" + System.currentTimeMillis() + ".jpg";
+
+                // Forward data to image_preprocess
+                image_preprocess.preprocessAndSave(screengrabPath, outputPath, xmin, ymin, xmax, ymax);
+
                 return newFixedLengthResponse(Response.Status.OK, "application/json", "{\"status\":\"success\"}");
             } catch (Exception e) {
                 e.printStackTrace();
                 return newFixedLengthResponse(Response.Status.INTERNAL_ERROR, "text/plain", "Error processing request.");
             }
         }
-
         return newFixedLengthResponse(Response.Status.NOT_FOUND, "text/plain", "Not Found");
     }
 
@@ -45,7 +58,7 @@ public class detection_server extends NanoHTTPD {
         super.stop();
         System.out.println("Detection Server stopped gracefully.");
     }
-
+    
     public static void main(String[] args) {
         try {
             new detection_server();
