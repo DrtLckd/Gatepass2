@@ -10,6 +10,8 @@ import java.io.File;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import org.opencv.core.Mat;
+import org.opencv.imgcodecs.Imgcodecs;
 
 public class rtsp_capture {
     private MediaPlayer mediaPlayer;
@@ -149,6 +151,7 @@ public class rtsp_capture {
     }
     
     private void captureAndProcessFrame(int xmin, int ymin, int xmax, int ymax) {
+        // Take a screengrab
         String capturePath = CAPTURE_DIR + File.separator + "capture_" + System.currentTimeMillis() + ".jpg";
         File captureFile = new File(capturePath);
 
@@ -157,9 +160,23 @@ public class rtsp_capture {
         if (result) {
             System.out.println("Screengrab saved: " + capturePath);
 
-            // Pass image for preprocessing
+            // Crop the screengrab using coordinates
+            Mat originalImage = image_preprocess.loadImage(capturePath);
+            if (originalImage.empty()) {
+                System.out.println("Failed to load screengrab for cropping.");
+                return;
+            }
+
+            Mat croppedImage = image_preprocess.cropToROI(originalImage, xmin, ymin, xmax, ymax);
+
+            // Save the cropped image
+            String croppedPath = PROCESSED_DIR + File.separator + "cropped_" + System.currentTimeMillis() + ".jpg";
+            Imgcodecs.imwrite(croppedPath, croppedImage);
+            System.out.println("Cropped image saved: " + croppedPath);
+
+            // Pass the cropped image to pre-processing
             String processedPath = PROCESSED_DIR + File.separator + "processed_" + System.currentTimeMillis() + ".jpg";
-            image_preprocess.preprocessAndSave(capturePath, processedPath, xmin, ymin, xmax, ymax);
+            image_preprocess.preprocessAndSave(croppedPath, processedPath, xmin, ymin, xmax, ymax);
 
             System.out.println("Processed image saved: " + processedPath);
         } else {
