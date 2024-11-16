@@ -14,9 +14,9 @@ public class gallery_dsb extends JFrame {
     private JPanel filePanel;
     private JTextArea textArea;
     private JButton backButton;
-    private static final String IMAGE_DIR = "D:\\NetBeansProjects\\Gatepass2\\captures";
-//            "D:\\Downloads\\Thesis\\task3";
-//            "C:\\Users\\predator 300\\Pictures"; // Path to the directory with images
+//    private static final String IMAGE_DIR = "D:\\NetBeansProjects\\Gatepass2\\captures";
+    private static final String IMAGE_DIR = "D:\\Downloads\\Thesis\\task3";
+//    private static final String IMAGE_DIR = "C:\\Users\\predator 300\\Pictures"; // Path to the directory with images
     private static final int THUMBNAIL_WIDTH = 150; // Width of each thumbnail
     private static final int THUMBNAIL_HEIGHT = 100; // Height of each thumbnail
     private File currentDirectory; // Keep track of the current directory
@@ -81,17 +81,16 @@ public class gallery_dsb extends JFrame {
     }
 
     private int calculateColumns() {
-        int availableWidth = filePanel.getWidth();
-        return Math.max(1, availableWidth / (THUMBNAIL_WIDTH + 20)); // Add spacing
+        int availableWidth = filePanel.getWidth(); // Dynamically calculate available width
+        return Math.max(1, availableWidth / (THUMBNAIL_WIDTH + 20)); // Ensure at least 1 column
     }
 
-        private ImageIcon getThumbnail(File file) {
+    private ImageIcon getThumbnail(File file) {
         return thumbnailCache.computeIfAbsent(file, f -> {
             try {
                 BufferedImage img = ImageIO.read(f);
                 if (img != null) {
-                    int dpiAwareWidth = getDpiAwareThumbnailWidth();
-                    Image scaledImg = img.getScaledInstance(dpiAwareWidth, THUMBNAIL_HEIGHT, Image.SCALE_SMOOTH);
+                    Image scaledImg = img.getScaledInstance(THUMBNAIL_WIDTH, THUMBNAIL_HEIGHT, Image.SCALE_SMOOTH);
                     return new ImageIcon(scaledImg);
                 }
             } catch (Exception e) {
@@ -99,11 +98,6 @@ public class gallery_dsb extends JFrame {
             }
             return null;
         });
-    }
-
-    private int getDpiAwareThumbnailWidth() {
-        int dpi = Toolkit.getDefaultToolkit().getScreenResolution();
-        return Math.round(THUMBNAIL_WIDTH * (dpi / 96.0f)); // Assuming 96 DPI as baseline
     }
     
     private void loadFiles(File directory) {
@@ -237,8 +231,14 @@ public class gallery_dsb extends JFrame {
         SwingUtilities.invokeLater(() -> {
             gallery_dsb gallery = new gallery_dsb();
             gallery.setVisible(true);
+
+            SwingUtilities.invokeLater(() -> {
+                gallery.getContentPane().revalidate();
+                gallery.getContentPane().repaint();
+            });
         });
     }
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     // End of variables declaration//GEN-END:variables
 }
