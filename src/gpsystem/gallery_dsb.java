@@ -35,7 +35,8 @@ public class gallery_dsb extends JFrame {
 
         // Initialize components
         initializeComponents();
-
+        setLocationRelativeTo(null);
+        
         // Load files from the default directory
         currentDirectory = new File(IMAGE_DIR); // Replace with your directory path
         loadFiles(currentDirectory);
