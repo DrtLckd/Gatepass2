@@ -1,6 +1,8 @@
 package gpsystem;
 
+import java.awt.Desktop;
 import java.io.File;
+import java.io.IOException;
 import javax.swing.JOptionPane;
 import javax.swing.JFrame;
 import java.util.ArrayList;
@@ -190,25 +192,24 @@ public class sidebar_dsb extends javax.swing.JPanel {
     }//GEN-LAST:event_processBtnActionPerformed
 
     private void galleryBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_galleryBtnActionPerformed
-      closeAllFrames(); // Close all open frames
+        closeAllFrames(); // Close all open frames
         JFrame currentFrame = (JFrame) javax.swing.SwingUtilities.getWindowAncestor(this);
         if (currentFrame != null) {
             currentFrame.dispose();
         }
 
-        // Create a JFileChooser instance pointing to a specific directory
-        JFileChooser fileChooser = new JFileChooser("C:\\Users\\predator 300\\Pictures"); // Replace with your desired directory path 
-        fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY); // Optional: Open folders only
-
-        // Show the file chooser dialog
-        int result = fileChooser.showOpenDialog(this);
-
-        if (result == JFileChooser.APPROVE_OPTION) {
-            File selectedDirectory = fileChooser.getSelectedFile();
-            System.out.println("Selected directory: " + selectedDirectory.getAbsolutePath());
-            // You can use the selected directory here
-        } else {
-            System.out.println("No directory selected.");
+        // Open the default file explorer at a specific directory
+        try {
+            File directory = new File("C:\\Users\\YourUsername\\Documents"); // Replace with your desired directory path
+            if (!directory.exists()) {
+                System.out.println("Directory does not exist: " + directory.getAbsolutePath());
+                return;
+            }
+            Desktop desktop = Desktop.getDesktop();
+            desktop.open(directory);
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.out.println("An error occurred while trying to open the file explorer.");
         }
 //        gallery_dsb gallery_dsb = new bidding_dsb(); // Create a new bidding_dsb frame
 //        gallery_dsb.setVisible(true); // Set the new frame to visible
