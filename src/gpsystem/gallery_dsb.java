@@ -12,7 +12,8 @@ public class gallery_dsb extends JFrame {
     private JPanel filePanel;
     private JTextArea textArea;
     private JButton backButton;
-    private static final String IMAGE_DIR = "C:\\Users\\predator 300\\Pictures"; // Path to the directory with images
+    private static final String IMAGE_DIR = "D:\\Downloads\\Thesis\\task3";
+//            "C:\\Users\\predator 300\\Pictures"; // Path to the directory with images
     private static final int THUMBNAIL_WIDTH = 150; // Width of each thumbnail
     private static final int THUMBNAIL_HEIGHT = 100; // Height of each thumbnail
     private File currentDirectory; // Keep track of the current directory
