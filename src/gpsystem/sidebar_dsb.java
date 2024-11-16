@@ -220,7 +220,8 @@ public class sidebar_dsb extends javax.swing.JPanel {
             }
 
             // Open the Embedded File Explorer
-            SwingUtilities.invokeLater(() -> new EmbeddedImageExplorer());
+            gallery_dsb galleryWindow = new gallery_dsb();
+            galleryWindow.setVisible(true);
 //        gallery_dsb gallery_dsb = new bidding_dsb(); // Create a new bidding_dsb frame
 //        gallery_dsb.setVisible(true); // Set the new frame to visible
 //        openFrames.add(gallery_dsb); // Add the new frame to the list of open frames   

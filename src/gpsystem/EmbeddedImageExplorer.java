@@ -15,27 +15,34 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 
 public class EmbeddedImageExplorer extends JFrame {
-
     private JPanel filePanel;
 
     public EmbeddedImageExplorer() {
-        setTitle("Embedded Image Explorer");
+        setTitle("Embedded File Explorer");
         setSize(800, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-        // Set layout for the main frame
         setLayout(new BorderLayout());
 
-        // Create a scrollable panel to display files
+        // Create the scrollable file panel
+        createScrollableFilePanel();
+
+        // Load files from the default directory
+        loadFiles(new File("C:\\Users\\predator 300\\Pictures\\Camera Roll")); // Replace with your directory path
+
+        setVisible(true);
+    }
+
+    private void createScrollableFilePanel() {
         filePanel = new JPanel();
-        filePanel.setLayout(new FlowLayout(FlowLayout.LEFT, 10, 10));
+        
+        // Use GridLayout for 5 items per row
+        filePanel.setLayout(new GridLayout(0, 5, 10, 10)); // 0 rows (dynamic), 5 columns, with spacing
+
+        // Add the file panel to a scrollable view
         JScrollPane scrollPane = new JScrollPane(filePanel, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 
-        // Load files from the specified directory
-        loadFiles(new File("C:\\Users\\YourUsername\\Pictures")); // Replace with your directory
-
+        // Add the scroll pane to the main frame
         add(scrollPane, BorderLayout.CENTER);
-        setVisible(true);
     }
 
     private void loadFiles(File directory) {
@@ -44,54 +51,51 @@ public class EmbeddedImageExplorer extends JFrame {
             return;
         }
 
-        // Clear existing content
-        filePanel.removeAll();
+        filePanel.removeAll(); // Clear existing content
 
-        // List files in the directory
         File[] files = directory.listFiles();
         if (files != null) {
             for (File file : files) {
-                if (file.isFile()) {
-                    // Create a preview for the file
-                    addFilePreview(file);
+                if (file.isDirectory()) {
+                    addFolderPreview(file); // Add folders
+                } else if (file.isFile()) {
+                    addFilePreview(file); // Add files
                 }
             }
         }
 
-        // Refresh the panel
         filePanel.revalidate();
         filePanel.repaint();
     }
 
+    private void addFolderPreview(File folder) {
+        JLabel folderLabel = new JLabel("📁 " + folder.getName());
+        folderLabel.setToolTipText("Folder: " + folder.getName());
+        folderLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        folderLabel.setBorder(BorderFactory.createLineBorder(Color.BLUE));
+
+        folderLabel.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                loadFiles(folder); // Open folder when clicked
+            }
+        });
+
+        filePanel.add(folderLabel);
+    }
+
     private void addFilePreview(File file) {
         try {
-            // Check if the file is an image
             BufferedImage img = ImageIO.read(file);
             if (img != null) {
-                // Create a scaled preview image
                 Image scaledImg = img.getScaledInstance(100, 100, Image.SCALE_SMOOTH);
-
-                // Create a label with the image
                 JLabel imageLabel = new JLabel(new ImageIcon(scaledImg));
-                imageLabel.setHorizontalAlignment(SwingConstants.CENTER);
-                imageLabel.setVerticalAlignment(SwingConstants.CENTER);
                 imageLabel.setToolTipText(file.getName());
-
-                // Add a border for better visibility
                 imageLabel.setBorder(BorderFactory.createLineBorder(Color.GRAY));
 
-                // Add click listener (optional)
-                imageLabel.addMouseListener(new java.awt.event.MouseAdapter() {
-                    public void mouseClicked(java.awt.event.MouseEvent evt) {
-                        JOptionPane.showMessageDialog(null, "You clicked: " + file.getName());
-                    }
-                });
-
-                // Add the image preview to the panel
                 filePanel.add(imageLabel);
             }
         } catch (Exception e) {
-            System.err.println("Error loading file: " + file.getAbsolutePath());
+            System.err.println("Error loading file: " + file.getName());
         }
     }
 
@@ -99,4 +103,5 @@ public class EmbeddedImageExplorer extends JFrame {
         SwingUtilities.invokeLater(EmbeddedImageExplorer::new);
     }
 }
+
 
