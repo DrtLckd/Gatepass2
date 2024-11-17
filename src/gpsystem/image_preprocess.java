@@ -1,5 +1,6 @@
 package gpsystem;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import org.opencv.core.*;
@@ -62,7 +63,7 @@ public class image_preprocess {
     // Binary Thresholding (Strict Threshold)
     public static Mat applyStrictThreshold(Mat image) {
         Mat binaryImage = new Mat();
-        Imgproc.threshold(image, binaryImage, 127, 255, Imgproc.THRESH_BINARY);
+        Imgproc.threshold(image, binaryImage, 50, 255, Imgproc.THRESH_BINARY);
         return binaryImage;
     }
 //
@@ -83,46 +84,83 @@ public class image_preprocess {
 //        return filledImage;
 //    }
 
-    // Preprocess and Save Image
-    public static void preprocessAndSave(String inputPath, String outputPath, int xmin, int ymin, int xmax, int ymax) {
+    public static void preprocessAndSave(String inputPath, String finalPath, int xmin, int ymin, int xmax, int ymax) {
         Mat image = loadImage(inputPath);
         if (image.empty()) {
+            System.err.println("Failed to load image for preprocessing: " + inputPath);
             return;
         }
 
         try {
+            // Crop the image to the region of interest (ROI)
+            Rect roi = new Rect(xmin, ymin, xmax - xmin, ymax - ymin);
+            Mat croppedImage = new Mat(image, roi);
+            String croppedPath = finalPath.replace("final_image", "cropped_image");
+            Imgcodecs.imwrite(croppedPath, croppedImage);
+            System.out.println("Cropped image saved to: " + croppedPath);
+
+            // Proceed with grayscale, contrast adjustment, etc.
             // Grayscale Conversion
-            Mat grayImage = convertToGrayscale(image);
-            Imgcodecs.imwrite("processed/grayscale.jpg", grayImage);
+            Mat grayImage = convertToGrayscale(croppedImage);
+            String grayPath = finalPath.replace("final_image", "grayscale");
+            Imgcodecs.imwrite(grayPath, grayImage);
+            System.out.println("Grayscale image saved to: " + grayPath);
 
             // Contrast Adjustment
             Mat contrastImage = adjustContrast(grayImage, 1.3, 20);
-            Imgcodecs.imwrite("processed/contrast_adjusted.jpg", contrastImage);
+            String contrastPath = finalPath.replace("final_image", "contrast_adjusted");
+            Imgcodecs.imwrite(contrastPath, contrastImage);
+            System.out.println("Contrast-adjusted image saved to: " + contrastPath);
 
             // Noise Reduction
             Mat denoisedImage = reduceNoise(contrastImage);
-            Imgcodecs.imwrite("processed/noise_reduced.jpg", denoisedImage);
+            String denoisedPath = finalPath.replace("final_image", "noise_reduced");
+            Imgcodecs.imwrite(denoisedPath, denoisedImage);
+            System.out.println("Denoised image saved to: " + denoisedPath);
 
-//            // Cropping Using ROI
-//            Mat croppedImage = cropToROI(denoisedImage, xmin, ymin, xmax, ymax);
-//            Imgcodecs.imwrite("processed/cropped_image.jpg", croppedImage);
+            //Binary Thresholding (Temporarily Disabled)
+            Mat binaryImage = applyStrictThreshold(denoisedImage);
+            Imgcodecs.imwrite(finalPath, binaryImage);
+            System.out.println("Final processed image saved to: " + finalPath);
 
-            // Binary Thresholding
-            Mat binaryImage = applyStrictThreshold(contrastImage); //croppedImage
-            Imgcodecs.imwrite(outputPath, binaryImage);
-
-            System.out.println("Image processed and saved to: " + outputPath);
+            // Save the denoised image as the final image (without thresholding)
+            Imgcodecs.imwrite(finalPath, denoisedImage);
+            System.out.println("Final processed image saved to: " + finalPath);
         } catch (Exception e) {
             System.err.println("Error during image preprocessing: " + e.getMessage());
         }
     }
 
+
+
     public static void main(String[] args) {
-        // For testing: Adjust paths and coordinates as necessary
+        // Ensure necessary directories exist
+        new File("captures").mkdirs();
+        new File("processed").mkdirs();
+
+        // Static test values
         String inputPath = "captures/screengrab.jpg";
         String outputPath = "processed/final_image.jpg";
         int xmin = 463, ymin = 378, xmax = 1200, ymax = 815;
 
+        // Check if input file exists
+        File inputFile = new File(inputPath);
+        if (!inputFile.exists()) {
+            System.err.println("Error: Input file does not exist at path: " + inputPath);
+            return;
+        }
+
+        // Log progress
+        System.out.println("Starting preprocessing for image: " + inputPath);
+        System.out.println("Output will be saved in: " + outputPath);
+        System.out.println("Region of Interest: xmin=" + xmin + ", ymin=" + ymin + ", xmax=" + xmax + ", ymax=" + ymax);
+
+        // Perform preprocessing
         preprocessAndSave(inputPath, outputPath, xmin, ymin, xmax, ymax);
+        System.out.println("Preprocessing complete.");
+
+        // Call OCR after preprocessing
+        System.out.println("Starting OCR...");
+        ocr_python.runOCR(outputPath);
     }
 }

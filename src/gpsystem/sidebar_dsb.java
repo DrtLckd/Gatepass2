@@ -52,7 +52,6 @@ public class sidebar_dsb extends javax.swing.JPanel {
         homeBtn = new javax.swing.JButton();
         processBtn = new javax.swing.JButton();
         galleryBtn = new javax.swing.JButton();
-        jButton4 = new javax.swing.JButton();
 
         jDesktopPane1.setBackground(new java.awt.Color(0, 0, 102));
 
@@ -104,26 +103,9 @@ public class sidebar_dsb extends javax.swing.JPanel {
             }
         });
 
-        jButton4.setFont(new java.awt.Font("Helvetica", 1, 25)); // NOI18N
-        jButton4.setForeground(new java.awt.Color(255, 255, 255));
-        jButton4.setText("BTN4");
-        jButton4.setBorder(null);
-        jButton4.setBorderPainted(false);
-        jButton4.setContentAreaFilled(false);
-        jButton4.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
-        jButton4.setMaximumSize(new java.awt.Dimension(68, 23));
-        jButton4.setMinimumSize(new java.awt.Dimension(68, 23));
-        jButton4.setRequestFocusEnabled(false);
-        jButton4.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton4ActionPerformed(evt);
-            }
-        });
-
         jDesktopPane1.setLayer(homeBtn, javax.swing.JLayeredPane.DEFAULT_LAYER);
         jDesktopPane1.setLayer(processBtn, javax.swing.JLayeredPane.DEFAULT_LAYER);
         jDesktopPane1.setLayer(galleryBtn, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        jDesktopPane1.setLayer(jButton4, javax.swing.JLayeredPane.DEFAULT_LAYER);
 
         javax.swing.GroupLayout jDesktopPane1Layout = new javax.swing.GroupLayout(jDesktopPane1);
         jDesktopPane1.setLayout(jDesktopPane1Layout);
@@ -132,7 +114,6 @@ public class sidebar_dsb extends javax.swing.JPanel {
             .addGroup(jDesktopPane1Layout.createSequentialGroup()
                 .addGap(24, 24, 24)
                 .addGroup(jDesktopPane1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jButton4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(galleryBtn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(processBtn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(homeBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 148, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -147,9 +128,7 @@ public class sidebar_dsb extends javax.swing.JPanel {
                 .addComponent(processBtn, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(galleryBtn, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jButton4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(419, Short.MAX_VALUE))
+                .addContainerGap(461, Short.MAX_VALUE))
         );
 
         processBtn.getAccessibleContext().setAccessibleDescription("");
@@ -205,20 +184,10 @@ public class sidebar_dsb extends javax.swing.JPanel {
         openFrames.add(gallery_dsb); // Add the new frame to the list of open frames   
     }//GEN-LAST:event_galleryBtnActionPerformed
 
-    private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
-        closeAllFrames();
-        JFrame currentFrame = (JFrame) javax.swing.SwingUtilities.getWindowAncestor(this);
-        if (currentFrame != null) {
-            currentFrame.dispose();
-        }
-        JOptionPane.showMessageDialog(this, "\"Btn4\" Is Pressed");
-    }//GEN-LAST:event_jButton4ActionPerformed
-
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton galleryBtn;
     private javax.swing.JButton homeBtn;
-    private javax.swing.JButton jButton4;
     private javax.swing.JDesktopPane jDesktopPane1;
     private javax.swing.JButton processBtn;
     // End of variables declaration//GEN-END:variables

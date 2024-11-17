@@ -14,9 +14,7 @@ public class gallery_dsb extends JFrame {
     private JPanel filePanel;
     private JTextArea textArea;
     private JButton backButton;
-//    private static final String IMAGE_DIR = "D:\\NetBeansProjects\\Gatepass2\\captures";
-    private static final String IMAGE_DIR = "D:\\Downloads\\Thesis\\task3";
-//    private static final String IMAGE_DIR = "C:\\Users\\predator 300\\Pictures"; // Path to the directory with images
+    private static final String IMAGE_DIR = "captures";         
     private static final int THUMBNAIL_WIDTH = 150; // Width of each thumbnail
     private static final int THUMBNAIL_HEIGHT = 100; // Height of each thumbnail
     private File currentDirectory; // Keep track of the current directory
@@ -209,17 +207,23 @@ public class gallery_dsb extends JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        sidebar_dsb1 = new gpsystem.sidebar_dsb();
+
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 400, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addComponent(sidebar_dsb1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 584, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 300, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addComponent(sidebar_dsb1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, Short.MAX_VALUE))
         );
 
         pack();
@@ -241,5 +245,6 @@ public class gallery_dsb extends JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private gpsystem.sidebar_dsb sidebar_dsb1;
     // End of variables declaration//GEN-END:variables
 }

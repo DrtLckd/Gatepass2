@@ -19,8 +19,7 @@ public class home_dsb extends javax.swing.JFrame {
     private MediaPlayer mediaPlayer;
     private LinkedList<String> recentIPs = new LinkedList<>(); // Store recent IPs
     private final int maxRecent = 5; // Maximum number of recent IPs to remember
-    private rtsp_capture rtsp_capture;
-    private detection_server serverInstance;
+    private detectionAndCaptureServer serverInstance;
     private Thread serverThread;
 
     public home_dsb() {
@@ -37,9 +36,6 @@ public class home_dsb extends javax.swing.JFrame {
 
         // Initialize the mediaPlayer instance
         mediaPlayer = mediaPlayerComponent.mediaPlayer();
-        
-        // Initialize StreamCaptureHandler with the mediaPlayer
-        rtsp_capture = new rtsp_capture(mediaPlayer);
         
         // Default message and background color for the stream panel
         JLabel initialLabel = new JLabel("Please enter IP and Port, then press Submit", SwingConstants.CENTER);
@@ -81,49 +77,50 @@ public class home_dsb extends javax.swing.JFrame {
         setLocationRelativeTo(null); // Center the window on the screen
     }
         
-   private void startStream(String rtspUrl) {
-    System.out.println("Starting stream with URL: " + rtspUrl);
+    private void startStream(String rtspUrl) {
+        System.out.println("Starting stream with URL: " + rtspUrl);
 
-    // Show "Connecting..." message immediately
-    showConnectingMessage();
+        // Show "Connecting..." message immediately
+        showConnectingMessage();
 
-    // Add the media component to the stream panel on the Event Dispatch Thread
-    SwingUtilities.invokeLater(() -> {
-        // Clear the panel and add the media component
-        streamPanel.removeAll();
-        streamPanel.add(mediaPlayerComponent, BorderLayout.CENTER);
-        streamPanel.revalidate();
-        streamPanel.repaint();
-
-        // Ensure the component is displayable before starting the stream
-        if (!mediaPlayerComponent.isDisplayable()) {
-            System.out.println("MediaPlayerComponent is not displayable. Aborting stream start.");
-            JOptionPane.showMessageDialog(this, "Video surface is not initialized properly.", "Error", JOptionPane.ERROR_MESSAGE);
-            showUnavailableMessage();
-            return;
-        }
-
-        // Start the stream only after ensuring the media player component is ready
-        mediaPlayer.media().play(rtspUrl);
-
-        // Check after a short delay to confirm the stream is playing
-        Timer statusCheckTimer = new Timer(2000, new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                ((Timer) e.getSource()).stop(); // Stop the status check timer
-
-                if (!mediaPlayer.status().isPlaying()) {
-                    System.out.println("Failed to start stream.");
-                    showUnavailableMessage();
-                } else {
-                    System.out.println("Stream started successfully.");
-                }
+        SwingUtilities.invokeLater(() -> {
+            if (mediaPlayer.status().isPlaying()) {
+                System.out.println("Stopping active stream...");
+                mediaPlayer.controls().stop();
             }
-        });
-        statusCheckTimer.setRepeats(false);
-        statusCheckTimer.start();
+
+            streamPanel.removeAll();
+            streamPanel.add(mediaPlayerComponent, BorderLayout.CENTER);
+            streamPanel.revalidate();
+            streamPanel.repaint();
+
+            if (!mediaPlayerComponent.isDisplayable()) {
+                System.out.println("MediaPlayerComponent is not displayable. Aborting stream start.");
+                JOptionPane.showMessageDialog(this, "Video surface is not initialized properly.", "Error", JOptionPane.ERROR_MESSAGE);
+                showUnavailableMessage();
+                return;
+            }
+
+            mediaPlayer.media().play(rtspUrl, ":network-caching=500");
+
+            Timer statusCheckTimer = new Timer(2000, new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    ((Timer) e.getSource()).stop();
+
+                    if (!mediaPlayer.status().isPlaying()) {
+                        System.out.println("Failed to start stream.");
+                        showUnavailableMessage();
+                    } else {
+                        System.out.println("Stream started successfully.");
+                    }
+                }
+            });
+            statusCheckTimer.setRepeats(false);
+            statusCheckTimer.start();
         });
     }
+
 
 
     
@@ -168,8 +165,11 @@ public class home_dsb extends javax.swing.JFrame {
         portComboBox = new javax.swing.JComboBox<>();
         portLabel = new javax.swing.JLabel();
         sidebar_dsb1 = new gpsystem.sidebar_dsb();
-        captureChkBox = new javax.swing.JCheckBox();
         serverChkBox = new javax.swing.JCheckBox();
+        jLabel1 = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
+        extractedTextPane = new java.awt.TextArea();
+        detectedTextPane = new java.awt.TextArea();
 
         jMenu1.setText("jMenu1");
 
@@ -202,7 +202,7 @@ public class home_dsb extends javax.swing.JFrame {
         );
         streamPanelLayout.setVerticalGroup(
             streamPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 716, Short.MAX_VALUE)
+            .addGap(0, 0, Short.MAX_VALUE)
         );
 
         rtspIPComboBox.setEditable(true);
@@ -226,30 +226,40 @@ public class home_dsb extends javax.swing.JFrame {
 
         portLabel.setText("Port:");
 
-        captureChkBox.setText("Capture");
-        captureChkBox.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                captureChkBoxActionPerformed(evt);
-            }
-        });
-
-        serverChkBox.setText("Server");
+        serverChkBox.setText("Server/Capture");
         serverChkBox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 serverChkBoxActionPerformed(evt);
             }
         });
 
+        jLabel1.setText("Extracted Text");
+
+        jLabel2.setText("Detected");
+
+        extractedTextPane.setFont(new java.awt.Font("Dialog", 0, 10)); // NOI18N
+        extractedTextPane.setMaximumSize(new java.awt.Dimension(32767, 20));
+        extractedTextPane.setMinimumSize(new java.awt.Dimension(100, 20));
+        extractedTextPane.setName(""); // NOI18N
+        extractedTextPane.setPreferredSize(new java.awt.Dimension(100, 20));
+
+        detectedTextPane.setFont(new java.awt.Font("Dialog", 0, 10)); // NOI18N
+        detectedTextPane.setMaximumSize(new java.awt.Dimension(32767, 20));
+        detectedTextPane.setMinimumSize(new java.awt.Dimension(100, 20));
+        detectedTextPane.setPreferredSize(new java.awt.Dimension(100, 20));
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGap(0, 0, 0)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addGap(0, 0, Short.MAX_VALUE)
+                .addComponent(serverChkBox)
+                .addGap(12, 12, 12))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addComponent(sidebar_dsb1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(6, 6, 6)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(streamPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 1298, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(rtspIPLabel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -259,17 +269,39 @@ public class home_dsb extends javax.swing.JFrame {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(portComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 54, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(enterRTSP, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 794, Short.MAX_VALUE)
-                        .addComponent(serverChkBox)
+                        .addComponent(enterRTSP, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(streamPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 1274, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(captureChkBox)))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(detectedTextPane, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(extractedTextPane, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(28, 28, 28)
+                                .addComponent(jLabel1))
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(40, 40, 40)
+                                .addComponent(jLabel2)))
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addComponent(streamPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 720, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(jLabel2)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(detectedTextPane, javax.swing.GroupLayout.PREFERRED_SIZE, 327, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jLabel1)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(extractedTextPane, javax.swing.GroupLayout.PREFERRED_SIZE, 327, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(streamPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 722, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(rtspIPLabel)
@@ -277,7 +309,6 @@ public class home_dsb extends javax.swing.JFrame {
                     .addComponent(portLabel)
                     .addComponent(portComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(enterRTSP, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(captureChkBox)
                     .addComponent(serverChkBox))
                 .addContainerGap())
             .addComponent(sidebar_dsb1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -319,10 +350,10 @@ public class home_dsb extends javax.swing.JFrame {
             if (serverInstance == null) {
                 serverThread = new Thread(() -> {
                     try {
-                        serverInstance = new detection_server();
-                        System.out.println("Detection Server started.");
+                        serverInstance = new detectionAndCaptureServer(mediaPlayer, detectedTextPane, extractedTextPane);
+                        System.out.println("Detection and Capture Server started.");
                     } catch (Exception e) {
-                        JOptionPane.showMessageDialog(this, "Failed to start Detection Server.", "Error", JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.showMessageDialog(this, "Failed to start Detection and Capture Server.", "Error", JOptionPane.ERROR_MESSAGE);
                         e.printStackTrace();
                         serverChkBox.setSelected(false); // Reset checkbox
                     }
@@ -338,38 +369,6 @@ public class home_dsb extends javax.swing.JFrame {
             }
         }
     }//GEN-LAST:event_serverChkBoxActionPerformed
-
-    private void captureChkBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_captureChkBoxActionPerformed
-        //        if (captureChkBox.isSelected()) {
-            //            // Enable RTSP capture detection only if the stream is active
-            //            if (rtsp_capture != null && mediaPlayer.status().isPlaying()) {
-                //                rtsp_capture.enableDetection();
-                //                System.out.println("RTSP Capture detection enabled.");
-                //            } else {
-                //                System.out.println("Cannot enable detection. Ensure the stream is active.");
-                //                captureChkBox.setSelected(false); // Reset checkbox
-                //            }
-            //        } else {
-            //            // Disable RTSP capture detection
-            //            if (rtsp_capture != null) {
-                //                rtsp_capture.disableDetection();
-                //                System.out.println("RTSP Capture detection disabled.");
-                //            }
-            //        }
-        if (captureChkBox.isSelected()) {
-            // Enable RTSP capture detection
-            if (rtsp_capture != null) {
-                rtsp_capture.enableDetection();
-                System.out.println("RTSP Capture detection enabled.");
-            }
-        } else {
-            // Disable RTSP capture detection
-            if (rtsp_capture != null) {
-                rtsp_capture.disableDetection();
-                System.out.println("RTSP Capture detection disabled.");
-            }
-        }
-    }//GEN-LAST:event_captureChkBoxActionPerformed
 
     private void addToRecentIPs(String rtspUrl) {
         if (recentIPs.contains(rtspUrl)) {
@@ -452,8 +451,11 @@ public class home_dsb extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JCheckBox captureChkBox;
+    private java.awt.TextArea detectedTextPane;
     private javax.swing.JButton enterRTSP;
+    private java.awt.TextArea extractedTextPane;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
     private javax.swing.JMenu jMenu1;
     private javax.swing.JComboBox<String> portComboBox;
     private javax.swing.JLabel portLabel;
