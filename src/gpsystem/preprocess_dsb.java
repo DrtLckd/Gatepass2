@@ -15,6 +15,7 @@ public class preprocess_dsb extends javax.swing.JFrame {
      */
     public preprocess_dsb() {
         initComponents();
+        setLocationRelativeTo(null); // Center the window on the screen
     }
 
     /**
