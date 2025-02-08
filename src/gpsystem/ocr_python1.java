@@ -1,13 +1,10 @@
 package gpsystem;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 
-public class ocr_python {
+public class ocr_python1 {
 
-    private Process pythonProcess;
-    private BufferedReader reader;
-    private BufferedWriter writer;
-    
     public static String runOCR(String finalImagePath) {
         StringBuilder extractedText = new StringBuilder();
         try {

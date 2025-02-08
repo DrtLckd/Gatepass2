@@ -91,6 +91,8 @@ public class gallery_dsb extends JFrame {
                 if (img != null) {
                     Image scaledImg = img.getScaledInstance(THUMBNAIL_WIDTH, THUMBNAIL_HEIGHT, Image.SCALE_SMOOTH);
                     return new ImageIcon(scaledImg);
+                } else {
+                    return new ImageIcon(); // Return empty icon instead of crashing
                 }
             } catch (Exception e) {
                 System.err.println("Error loading thumbnail: " + f.getName());
@@ -98,6 +100,7 @@ public class gallery_dsb extends JFrame {
             return null;
         });
     }
+
     
     private void loadFiles(File directory) {
         if (!directory.exists() || !directory.isDirectory()) {
@@ -141,10 +144,11 @@ public class gallery_dsb extends JFrame {
     
     private void addFolderPreview(File folder, GridBagConstraints gbc) {
         JLabel folderLabel = new JLabel("📁 " + folder.getName());
+        folderLabel.setFont(new Font("Arial", Font.BOLD, 12));
         folderLabel.setToolTipText("Folder: " + folder.getName());
         folderLabel.setHorizontalAlignment(SwingConstants.LEFT);
         folderLabel.setBorder(BorderFactory.createLineBorder(Color.BLUE));
-        folderLabel.setPreferredSize(new Dimension(THUMBNAIL_WIDTH, 40));
+        folderLabel.setPreferredSize(new Dimension(THUMBNAIL_WIDTH, 30));
         folderLabel.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override
             public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -192,7 +196,10 @@ public class gallery_dsb extends JFrame {
         StringBuilder breadcrumbs = new StringBuilder();
         File parent = currentDirectory;
         while (parent != null) {
-            breadcrumbs.insert(0, parent.getName() + " > ");
+            if (breadcrumbs.length() > 0) {
+                breadcrumbs.insert(0, " > ");
+            }
+            breadcrumbs.insert(0, parent.getName());
             parent = parent.getParentFile();
         }
         textArea.setText(breadcrumbs.toString());

@@ -1,8 +1,6 @@
 package gpsystem;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 import org.opencv.core.*;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
@@ -27,7 +25,7 @@ public class image_preprocess {
         }
         return image;
     }
-    
+
     // Grayscale Conversion
     public static Mat convertToGrayscale(Mat image) {
         Mat grayImage = new Mat();
@@ -49,41 +47,48 @@ public class image_preprocess {
         return denoisedImage;
     }
 
-//    public static Mat cropToROI(Mat image, int xmin, int ymin, int xmax, int ymax) {
-//        try {
-//            Rect roi = new Rect(xmin, ymin, xmax - xmin, ymax - ymin);
-//            return new Mat(image, roi);
-//        } catch (CvException e) {
-//            System.err.println("Invalid ROI for cropping: " + e.getMessage());
-//            return new Mat(); // Return an empty Mat for invalid ROI
-//        }
-//    }
-
-
     // Binary Thresholding (Strict Threshold)
     public static Mat applyStrictThreshold(Mat image) {
         Mat binaryImage = new Mat();
         Imgproc.threshold(image, binaryImage, 50, 255, Imgproc.THRESH_BINARY);
         return binaryImage;
     }
-//
-//    // Fill in bounded areas to make text solid
-//    public static Mat fillBoundedAreas(Mat image) {
-//        Mat filledImage = image.clone();
-//
-//        // Find contours
-//        List<MatOfPoint> contours = new ArrayList<>();
-//        Mat hierarchy = new Mat();
-//        Imgproc.findContours(filledImage, contours, hierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
-//
-//        // Fill each contour to make letters/numbers solid
-//        for (MatOfPoint contour : contours) {
-//            Imgproc.drawContours(filledImage, List.of(contour), -1, new Scalar(255), Core.FILLED);
-//        }
-//
-//        return filledImage;
-//    }
 
+    public static Mat applyPerspectiveCorrection(Mat croppedImage) {
+        // Detect corners of the cropped image (assuming a rectangular ROI)
+        int width = croppedImage.width();
+        int height = croppedImage.height();
+
+        // Define the source points (corners of the cropped ROI)
+        Point[] srcPoints = new Point[]{
+            new Point(0, 0),             // Top-left
+            new Point(width - 1, 0),     // Top-right
+            new Point(width - 1, height - 1), // Bottom-right
+            new Point(0, height - 1)     // Bottom-left
+        };
+
+        // Define the destination points (aligned rectangle)
+        Point[] dstPoints = new Point[]{
+            new Point(0, 0),             // Top-left
+            new Point(width - 1, 0),     // Top-right
+            new Point(width - 1, height - 1), // Bottom-right
+            new Point(0, height - 1)     // Bottom-left
+        };
+
+        // Create Mat objects for source and destination points
+        MatOfPoint2f srcMat = new MatOfPoint2f(srcPoints);
+        MatOfPoint2f dstMat = new MatOfPoint2f(dstPoints);
+
+        // Compute the perspective transformation matrix
+        Mat perspectiveTransform = Imgproc.getPerspectiveTransform(srcMat, dstMat);
+
+        // Apply the perspective transformation
+        Mat correctedImage = new Mat();
+        Imgproc.warpPerspective(croppedImage, correctedImage, perspectiveTransform, new Size(width, height));
+
+        return correctedImage;
+    }
+        
     public static void preprocessAndSave(String inputPath, String finalPath, int xmin, int ymin, int xmax, int ymax) {
         Mat image = loadImage(inputPath);
         if (image.empty()) {
@@ -99,9 +104,14 @@ public class image_preprocess {
             Imgcodecs.imwrite(croppedPath, croppedImage);
             System.out.println("Cropped image saved to: " + croppedPath);
 
-            // Proceed with grayscale, contrast adjustment, etc.
+            // Step 2: Apply perspective correction on the cropped ROI
+            Mat correctedImage = applyPerspectiveCorrection(croppedImage);
+            String correctedPath = finalPath.replace("final_image", "perspective_corrected");
+            Imgcodecs.imwrite(correctedPath, correctedImage);
+            System.out.println("Perspective-corrected image saved to: " + correctedPath);
+            
             // Grayscale Conversion
-            Mat grayImage = convertToGrayscale(croppedImage);
+            Mat grayImage = convertToGrayscale(correctedImage);
             String grayPath = finalPath.replace("final_image", "grayscale");
             Imgcodecs.imwrite(grayPath, grayImage);
             System.out.println("Grayscale image saved to: " + grayPath);
@@ -139,7 +149,7 @@ public class image_preprocess {
         new File("processed").mkdirs();
 
         // Static test values
-        String inputPath = "captures/screengrab.jpg";
+        String inputPath = "captures/1731890353265.jpg";
         String outputPath = "processed/final_image.jpg";
         int xmin = 463, ymin = 378, xmax = 1200, ymax = 815;
 
