@@ -26,6 +26,12 @@ public class image_preprocess {
         return image;
     }
 
+    public static Mat resizeImage(Mat image, int newWidth, int newHeight) {
+        Mat resizedImage = new Mat();
+        Imgproc.resize(image, resizedImage, new Size(newWidth, newHeight));
+        return resizedImage;
+}
+
     // Grayscale Conversion
     public static Mat convertToGrayscale(Mat image) {
         Mat grayImage = new Mat();
@@ -110,6 +116,9 @@ public class image_preprocess {
             Imgcodecs.imwrite(correctedPath, correctedImage);
             System.out.println("Perspective-corrected image saved to: " + correctedPath);
             
+            // Resize the image before processing (place this after loading)
+            image = resizeImage(image, 640, 480);
+
             // Grayscale Conversion
             Mat grayImage = convertToGrayscale(correctedImage);
             String grayPath = finalPath.replace("final_image", "grayscale");
