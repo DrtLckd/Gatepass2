@@ -7,45 +7,79 @@ public class ocr_python {
     private Process pythonProcess;
     private BufferedReader reader;
     private BufferedWriter writer;
-    
-    public static String runOCR(String finalImagePath) {
+
+    public ocr_python() {
+        try {
+            String pythonScriptPath = "ocr_script.py"; // Ensure correct path
+            ProcessBuilder processBuilder = new ProcessBuilder("python", pythonScriptPath);
+            processBuilder.redirectErrorStream(true);
+            pythonProcess = processBuilder.start();
+
+            // Setup streams for reading & writing
+            reader = new BufferedReader(new InputStreamReader(pythonProcess.getInputStream()));
+            writer = new BufferedWriter(new OutputStreamWriter(pythonProcess.getOutputStream()));
+
+            System.out.println("OCR Python script initialized successfully.");
+
+        } catch (IOException e) {
+            System.err.println("Error initializing Python OCR script: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    public synchronized String runOCR(String finalImagePath) {
         StringBuilder extractedText = new StringBuilder();
         try {
-            String pythonScriptPath = "ocr_script.py"; // Update with the actual path to your Python OCR script
+            if (pythonProcess == null) {
+                System.err.println("OCR process is not running.");
+                return "";
+            }
 
-            // Build the process to run the Python OCR script with the final image
-            ProcessBuilder processBuilder = new ProcessBuilder("python", pythonScriptPath, finalImagePath);
-            processBuilder.redirectErrorStream(true);
+            // Send the image path to Python
+            writer.write(finalImagePath + "\n");
+            writer.flush();
 
-            // Start the process
-            Process process = processBuilder.start();
-
-            // Read the output from the Python script
-            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            // Read OCR output
             String line;
             while ((line = reader.readLine()) != null) {
+                if (line.trim().equals("END")) break; // Marker to stop reading
                 extractedText.append(line).append("\n");
             }
 
-            // Wait for the process to finish
-            int exitCode = process.waitFor();
-            if (exitCode != 0) {
-                System.err.println("Python OCR script exited with an error. Code: " + exitCode);
-            }
-        } catch (Exception e) {
-            System.err.println("Error during OCR execution: " + e.getMessage());
+        } catch (IOException e) {
+            System.err.println("Error communicating with Python OCR script: " + e.getMessage());
             e.printStackTrace();
         }
+
         return extractedText.toString().trim();
     }
 
+    public void stopOCR() {
+        try {
+            if (pythonProcess != null) {
+                writer.write("exit\n");
+                writer.flush();
+                pythonProcess.waitFor();
+                pythonProcess.destroy();
+                pythonProcess = null;
+                System.out.println("OCR process terminated.");
+            }
+        } catch (IOException | InterruptedException e) {
+            System.err.println("Error stopping OCR process: " + e.getMessage());
+        }
+    }
+
     public static void main(String[] args) {
-        // For testing, provide the path to the final processed image
         if (args.length < 1) {
             System.err.println("Usage: java ocr_python <finalImagePath>");
             return;
         }
+
+        ocr_python ocr = new ocr_python();
         String finalImagePath = args[0];
-        runOCR(finalImagePath);
+
+        System.out.println("Extracted Text: " + ocr.runOCR(finalImagePath));
+
+        ocr.stopOCR();
     }
 }
