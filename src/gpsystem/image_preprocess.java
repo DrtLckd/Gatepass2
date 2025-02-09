@@ -40,18 +40,18 @@ public class image_preprocess {
         return grayImage;
     }
 
-    // Contrast Adjustment
-    public static Mat fastContrastEnhancement(Mat image) {
+    // Contrast Adjustment (Adaptive Histogram Equalization)
+    public static Mat applyCLAHE(Mat image) {
         Mat enhanced = new Mat();
-        CLAHE clahe = Imgproc.createCLAHE(2.0, new Size(8, 8)); // Contrast Limited Adaptive Histogram Equalization
+        CLAHE clahe = Imgproc.createCLAHE(2.0, new Size(8, 8));
         clahe.apply(image, enhanced);
         return enhanced;
     }
 
-    // Noise Reduction
-    public static Mat fastDenoise(Mat image) {
+    // Noise Reduction (Median Blur)
+    public static Mat reduceNoise(Mat image) {
         Mat denoisedImage = new Mat();
-        Imgproc.medianBlur(image, denoisedImage, 3); // 3x3 kernel, faster than Gaussian
+        Imgproc.medianBlur(image, denoisedImage, 3);
         return denoisedImage;
     }
 
@@ -104,22 +104,22 @@ public class image_preprocess {
             return;
         }
 
-        try {
+        try {        
+            // Resize the image before processing (place this after loading)
+            image = resizeImage(image, 640, 480);
+            
             // Crop the image to the region of interest (ROI)
             Rect roi = new Rect(xmin, ymin, xmax - xmin, ymax - ymin);
             Mat croppedImage = new Mat(image, roi);
             String croppedPath = finalPath.replace("final_image", "cropped_image");
-            Imgcodecs.imwrite(croppedPath, croppedImage);
+            Imgcodecs.imwrite(finalPath.replace("final_image", "cropped_image"), croppedImage);
             System.out.println("Cropped image saved to: " + croppedPath);
 
-            // Step 2: Apply perspective correction on the cropped ROI
+            // Step 3: Apply perspective correction on the cropped ROI
             Mat correctedImage = applyPerspectiveCorrection(croppedImage);
             String correctedPath = finalPath.replace("final_image", "perspective_corrected");
             Imgcodecs.imwrite(correctedPath, correctedImage);
             System.out.println("Perspective-corrected image saved to: " + correctedPath);
-            
-            // Resize the image before processing (place this after loading)
-            image = resizeImage(image, 640, 480);
 
             // Grayscale Conversion
             Mat grayImage = convertToGrayscale(correctedImage);
@@ -127,26 +127,27 @@ public class image_preprocess {
             Imgcodecs.imwrite(grayPath, grayImage);
             System.out.println("Grayscale image saved to: " + grayPath);
 
-            // Contrast Adjustment
-            Mat contrastImage = fastContrastEnhancement(grayImage);
-            String contrastPath = finalPath.replace("final_image", "contrast_adjusted");
-            Imgcodecs.imwrite(contrastPath, contrastImage);
-            System.out.println("Contrast-adjusted image saved to: " + contrastPath);
-
             // Noise Reduction
-            Mat denoisedImage = fastDenoise(contrastImage);
+            Mat denoisedImage = reduceNoise(grayImage);
             String denoisedPath = finalPath.replace("final_image", "noise_reduced");
             Imgcodecs.imwrite(denoisedPath, denoisedImage);
             System.out.println("Denoised image saved to: " + denoisedPath);
 
+            // Contrast Adjustment
+            Mat contrastImage = applyCLAHE(denoisedImage);
+            String contrastPath = finalPath.replace("final_image", "contrast_adjusted");
+            Imgcodecs.imwrite(contrastPath, contrastImage);
+            System.out.println("Contrast-adjusted image saved to: " + contrastPath);
+            
             //Binary Thresholding (Temporarily Disabled)
-            Mat binaryImage = applyStrictThreshold(denoisedImage);
+            Mat binaryImage = applyStrictThreshold(contrastImage);
             Imgcodecs.imwrite(finalPath, binaryImage);
             System.out.println("Final processed image saved to: " + finalPath);
 
             // Save the denoised image as the final image (without thresholding)
             Imgcodecs.imwrite(finalPath, denoisedImage);
             System.out.println("Final processed image saved to: " + finalPath);
+            
         } catch (Exception e) {
             System.err.println("Error during image preprocessing: " + e.getMessage());
         }
@@ -182,6 +183,7 @@ public class image_preprocess {
 
         // Call OCR after preprocessing
         System.out.println("Starting OCR...");
-        ocr_python.runOCR(outputPath);
+        String ocrResult = ocr_python.runOCR(outputPath);
+        System.out.println("Detected Text: " + ocrResult);
     }
 }
