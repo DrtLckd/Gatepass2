@@ -47,9 +47,9 @@ public class image_preprocess {
     }
 
     // Noise Reduction
-    public static Mat reduceNoise(Mat image) {
+    public static Mat fastDenoise(Mat image) {
         Mat denoisedImage = new Mat();
-        Imgproc.GaussianBlur(image, denoisedImage, new Size(5, 5), 0);
+        Imgproc.medianBlur(image, denoisedImage, 3); // 3x3 kernel, faster than Gaussian
         return denoisedImage;
     }
 
@@ -132,7 +132,7 @@ public class image_preprocess {
             System.out.println("Contrast-adjusted image saved to: " + contrastPath);
 
             // Noise Reduction
-            Mat denoisedImage = reduceNoise(contrastImage);
+            Mat denoisedImage = fastDenoise(contrastImage);
             String denoisedPath = finalPath.replace("final_image", "noise_reduced");
             Imgcodecs.imwrite(denoisedPath, denoisedImage);
             System.out.println("Denoised image saved to: " + denoisedPath);
