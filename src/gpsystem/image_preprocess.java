@@ -3,6 +3,7 @@ package gpsystem;
 import java.io.File;
 import org.opencv.core.*;
 import org.opencv.imgcodecs.Imgcodecs;
+import org.opencv.imgproc.CLAHE;
 import org.opencv.imgproc.Imgproc;
 
 public class image_preprocess {
@@ -40,10 +41,11 @@ public class image_preprocess {
     }
 
     // Contrast Adjustment
-    public static Mat adjustContrast(Mat image, double alpha, double beta) {
-        Mat contrastImage = new Mat();
-        image.convertTo(contrastImage, -1, alpha, beta); // alpha: contrast, beta: brightness
-        return contrastImage;
+    public static Mat fastContrastEnhancement(Mat image) {
+        Mat enhanced = new Mat();
+        CLAHE clahe = Imgproc.createCLAHE(2.0, new Size(8, 8)); // Contrast Limited Adaptive Histogram Equalization
+        clahe.apply(image, enhanced);
+        return enhanced;
     }
 
     // Noise Reduction
@@ -126,7 +128,7 @@ public class image_preprocess {
             System.out.println("Grayscale image saved to: " + grayPath);
 
             // Contrast Adjustment
-            Mat contrastImage = adjustContrast(grayImage, 1.3, 20);
+            Mat contrastImage = fastContrastEnhancement(grayImage);
             String contrastPath = finalPath.replace("final_image", "contrast_adjusted");
             Imgcodecs.imwrite(contrastPath, contrastImage);
             System.out.println("Contrast-adjusted image saved to: " + contrastPath);
