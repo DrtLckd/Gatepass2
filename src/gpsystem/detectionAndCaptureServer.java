@@ -8,8 +8,11 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import java.awt.TextArea;
+import java.util.ArrayList;
+import java.util.List;
 import javax.swing.JTextPane;
 import javax.swing.SwingUtilities;
+import org.opencv.core.Rect;
 
 public class detectionAndCaptureServer extends NanoHTTPD {
     private MediaPlayer mediaPlayer;
@@ -74,8 +77,7 @@ public class detectionAndCaptureServer extends NanoHTTPD {
 
                     StringBuilder detectionDetails = new StringBuilder("Detections:\n");
                     boolean vehicleDetected = false; // Either "car" or "motorcycle"
-                    boolean plateDetected = false;
-                    int xmin = 0, ymin = 0, xmax = 0, ymax = 0;
+                    List<Rect> detectedPlates = new ArrayList<>();
 
                     for (int i = 0; i < detections.size(); i++) {
                         com.google.gson.JsonObject detection = detections.get(i).getAsJsonObject();
@@ -92,11 +94,11 @@ public class detectionAndCaptureServer extends NanoHTTPD {
                         if ("car".equals(type) || "motorcycle".equals(type)) {
                             vehicleDetected = true;
                         } else if ("plate".equals(type)) {
-                            plateDetected = true;
-                            xmin = coords.get(0).getAsInt();
-                            ymin = coords.get(1).getAsInt();
-                            xmax = coords.get(2).getAsInt();
-                            ymax = coords.get(3).getAsInt();
+                            int xmin = coords.get(0).getAsInt();
+                            int ymin = coords.get(1).getAsInt();
+                            int xmax = coords.get(2).getAsInt();
+                            int ymax = coords.get(3).getAsInt();
+                            detectedPlates.add(new Rect(xmin, ymin, xmax - xmin, ymax - ymin));
                         }
                     }
 
@@ -104,14 +106,14 @@ public class detectionAndCaptureServer extends NanoHTTPD {
                     updateDetectedTextPane(detectionDetails.toString());
 
                     // If conditions met, capture and process snapshot
-                    if (vehicleDetected && plateDetected) {
+                    if (vehicleDetected && !detectedPlates.isEmpty()) {
                         System.out.println("Conditions met. Capturing snapshot...");
                         String snapshotPath = CAPTURE_DIR + File.separator + System.currentTimeMillis() + ".jpg";
 
                         boolean snapshotResult = mediaPlayer.snapshots().save(new File(snapshotPath));
                         if (snapshotResult) {
                             System.out.println("Snapshot saved: " + snapshotPath);
-                            captureAndProcessFrame(snapshotPath, xmin, ymin, xmax, ymax);
+                            captureAndProcessFrame(snapshotPath, detectedPlates);
                         } else {
                             System.out.println("Snapshot failed.");
                         }
@@ -125,6 +127,7 @@ public class detectionAndCaptureServer extends NanoHTTPD {
         }
         return newFixedLengthResponse(Response.Status.NOT_FOUND, "text/plain", "Not Found");
     }
+
 
     private void updateDetectedTextPane(String detections) {
         SwingUtilities.invokeLater(() -> {
@@ -146,44 +149,48 @@ public class detectionAndCaptureServer extends NanoHTTPD {
         });
     }
 
-    private void captureAndProcessFrame(String snapshotPath, int xmin, int ymin, int xmax, int ymax) {
+    private void captureAndProcessFrame(String snapshotPath, List<Rect> detectedPlates) {
         if (!mediaPlayer.status().isPlaying()) {
             System.out.println("Skipping snapshot: No active stream.");
             return; // Prevents capturing an invalid frame
         }
 
-        // Ensure xmin, ymin, xmax, ymax are valid
-        if (xmin == xmax || ymin == ymax) {
-            System.out.println("Skipping processing: No plate detected.");
-            return; // Prevents trying to process an empty region
+        if (detectedPlates.isEmpty()) {
+            System.out.println("Skipping processing: No plates detected.");
+            return;
         }
 
-        String folderName = snapshotPath.substring(snapshotPath.lastIndexOf(File.separator) + 1, snapshotPath.lastIndexOf(".")); // Unique folder name
+        String folderName = snapshotPath.substring(snapshotPath.lastIndexOf(File.separator) + 1, snapshotPath.lastIndexOf("."));
         String folderPath = "processed" + File.separator + folderName;
 
         File folder = new File(folderPath);
         if (!folder.exists()) folder.mkdirs(); // Create folder if it doesn't exist
 
-        String finalImagePath = folderPath + File.separator + "final_image.jpg";
+        for (int i = 0; i < detectedPlates.size(); i++) {
+            Rect plate = detectedPlates.get(i);
+            String finalImagePath = folderPath + File.separator + "plate_" + i + "_final.jpg";
 
-        try {
-            // Step 1: Perform Image Preprocessing
-            boolean preprocessSuccess = image_preprocess.preprocessAndSave(snapshotPath, finalImagePath, xmin, ymin, xmax, ymax);
+            try {
+                boolean preprocessSuccess = image_preprocess.preprocessAndSave(snapshotPath, finalImagePath, plate.x, plate.y, plate.x + plate.width, plate.y + plate.height);
 
-            if (!preprocessSuccess) {
-                System.err.println("Preprocessing failed, skipping OCR.");
-                return; // Prevents OCR from running on an invalid image
+                if (!preprocessSuccess) {
+                    System.err.println("Preprocessing failed for plate " + i + ", skipping OCR.");
+                    continue;
+                }
+
+                String extractedText = ocr_python.runOCR(finalImagePath);
+
+                if (extractedText == null || extractedText.trim().isEmpty()) {
+                    System.err.println("❌ OCR did not detect any text for plate " + i);
+                } else {
+                    System.out.println("✅ OCR Extracted Text for plate " + i + ": " + extractedText);
+                }
+
+                updateExtractedTextPane(extractedText);
+
+            } catch (Exception e) {
+                System.err.println("Error processing plate " + i + ": " + e.getMessage());
             }
-
-            // Step 2: Perform OCR on the Final Processed Image
-            String extractedText = ocr_python.runOCR(finalImagePath);
-
-            // Step 3: Update the Extracted Text Pane in home_dsb
-            updateExtractedTextPane(extractedText);
-
-        } catch (Exception e) {
-            System.err.println("Error during image preprocessing or OCR: " + e.getMessage());
         }
     }
-
 }
