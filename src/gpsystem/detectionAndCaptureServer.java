@@ -147,6 +147,17 @@ public class detectionAndCaptureServer extends NanoHTTPD {
     }
 
     private void captureAndProcessFrame(String snapshotPath, int xmin, int ymin, int xmax, int ymax) {
+        if (!mediaPlayer.status().isPlaying()) {
+            System.out.println("Skipping snapshot: No active stream.");
+            return; // Prevents capturing an invalid frame
+        }
+
+        // Ensure xmin, ymin, xmax, ymax are valid
+        if (xmin == xmax || ymin == ymax) {
+            System.out.println("Skipping processing: No plate detected.");
+            return; // Prevents trying to process an empty region
+        }
+
         String folderName = snapshotPath.substring(snapshotPath.lastIndexOf(File.separator) + 1, snapshotPath.lastIndexOf(".")); // Unique folder name
         String folderPath = "processed" + File.separator + folderName;
 
@@ -157,7 +168,12 @@ public class detectionAndCaptureServer extends NanoHTTPD {
 
         try {
             // Step 1: Perform Image Preprocessing
-            image_preprocess.preprocessAndSave(snapshotPath, finalImagePath, xmin, ymin, xmax, ymax);
+            boolean preprocessSuccess = image_preprocess.preprocessAndSave(snapshotPath, finalImagePath, xmin, ymin, xmax, ymax);
+
+            if (!preprocessSuccess) {
+                System.err.println("Preprocessing failed, skipping OCR.");
+                return; // Prevents OCR from running on an invalid image
+            }
 
             // Step 2: Perform OCR on the Final Processed Image
             String extractedText = ocr_python.runOCR(finalImagePath);
@@ -169,4 +185,5 @@ public class detectionAndCaptureServer extends NanoHTTPD {
             System.err.println("Error during image preprocessing or OCR: " + e.getMessage());
         }
     }
+
 }
