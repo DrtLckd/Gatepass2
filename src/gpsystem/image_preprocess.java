@@ -97,59 +97,84 @@ public class image_preprocess {
         return correctedImage;
     }
         
-    public static void preprocessAndSave(String inputPath, String finalPath, int xmin, int ymin, int xmax, int ymax) {
+    public static boolean preprocessAndSave(String inputPath, String finalPath, int xmin, int ymin, int xmax, int ymax) {
         Mat image = loadImage(inputPath);
         if (image.empty()) {
-            System.err.println("Failed to load image for preprocessing: " + inputPath);
-            return;
+            System.err.println("❌ Failed to load image: " + inputPath);
+            return false; // Preprocessing failed
         }
 
         try {        
             // Resize the image before processing (place this after loading)
             image = resizeImage(image, 640, 480);
             
-            // Crop the image to the region of interest (ROI)
+            // Ensure ROI is within valid bounds
+            if (xmin < 0 || ymin < 0 || xmax > image.cols() || ymax > image.rows()) {
+                System.err.println("❌ Invalid ROI detected. Skipping processing.");
+                return false;
+            }
+        
+            // Crop the image to the ROI
             Rect roi = new Rect(xmin, ymin, xmax - xmin, ymax - ymin);
             Mat croppedImage = new Mat(image, roi);
             String croppedPath = finalPath.replace("final_image", "cropped_image");
-            Imgcodecs.imwrite(finalPath.replace("final_image", "cropped_image"), croppedImage);
-            System.out.println("Cropped image saved to: " + croppedPath);
+            Imgcodecs.imwrite(croppedPath, croppedImage);
+            System.out.println("✅ Cropped image saved: " + croppedPath);
 
             // Step 3: Apply perspective correction on the cropped ROI
             Mat correctedImage = applyPerspectiveCorrection(croppedImage);
+            if (correctedImage.empty()) {
+                System.err.println("❌ Perspective correction failed.");
+                return false;
+            }
             String correctedPath = finalPath.replace("final_image", "perspective_corrected");
             Imgcodecs.imwrite(correctedPath, correctedImage);
-            System.out.println("Perspective-corrected image saved to: " + correctedPath);
+            System.out.println("✅ Perspective-corrected image saved: " + correctedPath);
 
             // Grayscale Conversion
             Mat grayImage = convertToGrayscale(correctedImage);
+            if (grayImage.empty()) {
+                System.err.println("❌ Grayscale conversion failed.");
+                return false;
+            }
             String grayPath = finalPath.replace("final_image", "grayscale");
             Imgcodecs.imwrite(grayPath, grayImage);
-            System.out.println("Grayscale image saved to: " + grayPath);
+            System.out.println("✅ Grayscale image saved: " + grayPath);
 
             // Noise Reduction
             Mat denoisedImage = reduceNoise(grayImage);
+            if (denoisedImage.empty()) {
+                System.err.println("❌ Noise reduction failed.");
+                return false;
+            }
             String denoisedPath = finalPath.replace("final_image", "noise_reduced");
             Imgcodecs.imwrite(denoisedPath, denoisedImage);
-            System.out.println("Denoised image saved to: " + denoisedPath);
+            System.out.println("✅ Denoised image saved: " + denoisedPath);
 
             // Contrast Adjustment
             Mat contrastImage = applyCLAHE(denoisedImage);
+            if (contrastImage.empty()) {
+                System.err.println("❌ Contrast adjustment failed.");
+                return false;
+            }
             String contrastPath = finalPath.replace("final_image", "contrast_adjusted");
             Imgcodecs.imwrite(contrastPath, contrastImage);
-            System.out.println("Contrast-adjusted image saved to: " + contrastPath);
+            System.out.println("✅ Contrast-adjusted image saved: " + contrastPath);
             
-            //Binary Thresholding (Temporarily Disabled)
+            // Binary Thresholding (Optional)
             Mat binaryImage = applyStrictThreshold(contrastImage);
+            if (binaryImage.empty()) {
+                System.err.println("❌ Thresholding failed.");
+                return false;
+            }
             Imgcodecs.imwrite(finalPath, binaryImage);
-            System.out.println("Final processed image saved to: " + finalPath);
+            System.out.println("✅ Final processed image saved: " + finalPath);
 
-            // Save the denoised image as the final image (without thresholding)
-            Imgcodecs.imwrite(finalPath, denoisedImage);
-            System.out.println("Final processed image saved to: " + finalPath);
+            return true; // Preprocessing completed successfully
             
         } catch (Exception e) {
-            System.err.println("Error during image preprocessing: " + e.getMessage());
+            System.err.println("❌ Error during image preprocessing: " + e.getMessage());
+            return false;
         }
     }
 
