@@ -27,11 +27,11 @@ public class image_preprocess {
         return image;
     }
 
-    public static Mat resizeImage(Mat image, int newWidth, int newHeight) {
-        Mat resizedImage = new Mat();
-        Imgproc.resize(image, resizedImage, new Size(newWidth, newHeight));
-        return resizedImage;
-}
+//    public static Mat resizeImage(Mat image, int newWidth, int newHeight) {
+//        Mat resizedImage = new Mat();
+//        Imgproc.resize(image, resizedImage, new Size(newWidth, newHeight));
+//        return resizedImage;
+//}
 
     // Grayscale Conversion
     public static Mat convertToGrayscale(Mat image) {
@@ -43,7 +43,7 @@ public class image_preprocess {
     // Contrast Adjustment (Adaptive Histogram Equalization)
     public static Mat applyCLAHE(Mat image) {
         Mat enhanced = new Mat();
-        CLAHE clahe = Imgproc.createCLAHE(2.0, new Size(8, 8));
+        CLAHE clahe = Imgproc.createCLAHE(2.5, new Size(8, 8));
         clahe.apply(image, enhanced);
         return enhanced;
     }
@@ -51,52 +51,90 @@ public class image_preprocess {
     // Noise Reduction (Median Blur)
     public static Mat reduceNoise(Mat image) {
         Mat denoisedImage = new Mat();
-        Imgproc.medianBlur(image, denoisedImage, 3);
+        Imgproc.medianBlur(image, denoisedImage, 5);
         return denoisedImage;
     }
 
-    // Binary Thresholding (Strict Threshold)
-    public static Mat applyStrictThreshold(Mat image) {
+//    // Binary Thresholding (Strict Threshold)
+//    public static Mat applyStrictThreshold(Mat image) {
+//        Mat binaryImage = new Mat();
+//        Imgproc.threshold(image, binaryImage, 50, 255, Imgproc.THRESH_BINARY);
+//        return binaryImage;
+//    }
+      // Binary Thresholding (Otsu's Adaptive Threshold)
+    public static Mat applyAdaptiveThreshold(Mat image) {
         Mat binaryImage = new Mat();
-        Imgproc.threshold(image, binaryImage, 50, 255, Imgproc.THRESH_BINARY);
+        Imgproc.adaptiveThreshold(image, binaryImage, 255, Imgproc.ADAPTIVE_THRESH_GAUSSIAN_C, Imgproc.THRESH_BINARY, 15, 5);
         return binaryImage;
     }
+        
+//    public static Mat applyPerspectiveCorrection(Mat croppedImage) {
+//        // Detect corners of the cropped image (assuming a rectangular ROI)
+//        int width = croppedImage.width();
+//        int height = croppedImage.height();
+//
+//        // Define the source points (corners of the cropped ROI)
+//        Point[] srcPoints = new Point[]{
+//            new Point(0, 0),             // Top-left
+//            new Point(width - 1, 0),     // Top-right
+//            new Point(width - 1, height - 1), // Bottom-right
+//            new Point(0, height - 1)     // Bottom-left
+//        };
+//
+//        // Define the destination points (aligned rectangle)
+//        Point[] dstPoints = new Point[]{
+//            new Point(0, 0),             // Top-left
+//            new Point(width - 1, 0),     // Top-right
+//            new Point(width - 1, height - 1), // Bottom-right
+//            new Point(0, height - 1)     // Bottom-left
+//        };
+//
+//        // Create Mat objects for source and destination points
+//        MatOfPoint2f srcMat = new MatOfPoint2f(srcPoints);
+//        MatOfPoint2f dstMat = new MatOfPoint2f(dstPoints);
+//
+//        // Compute the perspective transformation matrix
+//        Mat perspectiveTransform = Imgproc.getPerspectiveTransform(srcMat, dstMat);
+//
+//        // Apply the perspective transformation
+//        Mat correctedImage = new Mat();
+//        Imgproc.warpPerspective(croppedImage, correctedImage, perspectiveTransform, new Size(width, height));
+//
+//        return correctedImage;
+//    }
+        
+            // Perspective Correction (Skipped if Image is Already Cropped)
+    public static Mat applyPerspectiveCorrection(Mat image) {
+        int width = image.width();
+        int height = image.height();
 
-    public static Mat applyPerspectiveCorrection(Mat croppedImage) {
-        // Detect corners of the cropped image (assuming a rectangular ROI)
-        int width = croppedImage.width();
-        int height = croppedImage.height();
+        if (width <= 0 || height <= 0) {
+            System.err.println("❌ Invalid image dimensions for perspective correction.");
+            return image; // Skip transformation if dimensions are invalid
+        }
 
-        // Define the source points (corners of the cropped ROI)
-        Point[] srcPoints = new Point[]{
-            new Point(0, 0),             // Top-left
-            new Point(width - 1, 0),     // Top-right
-            new Point(width - 1, height - 1), // Bottom-right
-            new Point(0, height - 1)     // Bottom-left
-        };
+        MatOfPoint2f srcMat = new MatOfPoint2f(
+            new Point(0, 0),
+            new Point(width - 1, 0),
+            new Point(width - 1, height - 1),
+            new Point(0, height - 1)
+        );
 
-        // Define the destination points (aligned rectangle)
-        Point[] dstPoints = new Point[]{
-            new Point(0, 0),             // Top-left
-            new Point(width - 1, 0),     // Top-right
-            new Point(width - 1, height - 1), // Bottom-right
-            new Point(0, height - 1)     // Bottom-left
-        };
+        MatOfPoint2f dstMat = new MatOfPoint2f(
+            new Point(0, 0),
+            new Point(width - 1, 0),
+            new Point(width - 1, height - 1),
+            new Point(0, height - 1)
+        );
 
-        // Create Mat objects for source and destination points
-        MatOfPoint2f srcMat = new MatOfPoint2f(srcPoints);
-        MatOfPoint2f dstMat = new MatOfPoint2f(dstPoints);
-
-        // Compute the perspective transformation matrix
         Mat perspectiveTransform = Imgproc.getPerspectiveTransform(srcMat, dstMat);
-
-        // Apply the perspective transformation
         Mat correctedImage = new Mat();
-        Imgproc.warpPerspective(croppedImage, correctedImage, perspectiveTransform, new Size(width, height));
+        Imgproc.warpPerspective(image, correctedImage, perspectiveTransform, new Size(width, height));
 
         return correctedImage;
     }
-        
+
+    
     public static boolean preprocessAndSave(String inputPath, String finalPath, int xmin, int ymin, int xmax, int ymax) {
         Mat image = loadImage(inputPath);
         if (image.empty()) {
@@ -106,17 +144,20 @@ public class image_preprocess {
 
         try {        
             // Resize the image before processing (place this after loading)
-            image = resizeImage(image, 640, 480);
+            // image = resizeImage(image, 640, 480);
             
             // Ensure ROI is within valid bounds
-            if (xmin < 0 || ymin < 0 || xmax > image.cols() || ymax > image.rows()) {
-                System.err.println("❌ Invalid ROI detected. Skipping processing.");
-                return false;
-            }
+            xmin = Math.max(0, Math.min(xmin, image.cols() - 1));
+            ymin = Math.max(0, Math.min(ymin, image.rows() - 1));
+            xmax = Math.max(xmin + 1, Math.min(xmax, image.cols()));
+            ymax = Math.max(ymin + 1, Math.min(ymax, image.rows()));
         
             // Crop the image to the ROI
-            Rect roi = new Rect(xmin, ymin, xmax - xmin, ymax - ymin);
-            Mat croppedImage = new Mat(image, roi);
+            Mat croppedImage = new Mat(image, new Rect(xmin, ymin, xmax - xmin, ymax - ymin));
+            if (croppedImage.empty()) {
+                System.err.println("❌ Cropped image is empty. Skipping further processing.");
+                return false;
+            }
             String croppedPath = finalPath.replace("final_image", "cropped_image");
             Imgcodecs.imwrite(croppedPath, croppedImage);
             System.out.println("✅ Cropped image saved: " + croppedPath);
@@ -161,12 +202,19 @@ public class image_preprocess {
             Imgcodecs.imwrite(contrastPath, contrastImage);
             System.out.println("✅ Contrast-adjusted image saved: " + contrastPath);
             
-            // Binary Thresholding (Optional)
-            Mat binaryImage = applyStrictThreshold(contrastImage);
-            if (binaryImage.empty()) {
-                System.err.println("❌ Thresholding failed.");
-                return false;
-            }
+//            // Binary Thresholding (Optional)
+//            Mat binaryImage = new Mat();
+//            Imgproc.threshold(contrastImage, binaryImage, 0, 255, 
+//                              Imgproc.THRESH_BINARY + Imgproc.THRESH_OTSU);
+//            if (binaryImage.empty()) {
+//                System.err.println("❌ Thresholding failed.");
+//                return false;
+//            }
+//            Imgcodecs.imwrite(finalPath, binaryImage);
+//            System.out.println("✅ Final processed image saved: " + finalPath);
+
+            // Binary Thresholding (Adaptive)
+            Mat binaryImage = applyAdaptiveThreshold(contrastImage);
             Imgcodecs.imwrite(finalPath, binaryImage);
             System.out.println("✅ Final processed image saved: " + finalPath);
 
@@ -186,9 +234,9 @@ public class image_preprocess {
         new File("processed").mkdirs();
 
         // Static test values
-        String inputPath = "captures/1731890353265.jpg";
+        String inputPath = "processed/cropped_image.jpg";
         String outputPath = "processed/final_image.jpg";
-        int xmin = 463, ymin = 378, xmax = 1200, ymax = 815;
+        int xmin = 0, ymin = 0, xmax = 251, ymax = 137;
 
         // Check if input file exists
         File inputFile = new File(inputPath);
