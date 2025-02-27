@@ -306,7 +306,7 @@ public class registration_dsb extends javax.swing.JFrame {
     }//GEN-LAST:event_showPassBtn
 
     private void showPassBtn1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_showPassBtn1ActionPerformed
-        if (showPassBtn.isSelected()) {
+        if (showPassBtn1.isSelected()) {
             confirmPassField.setEchoChar((char) 0); // Show password text
         } else {
             confirmPassField.setEchoChar('*'); // Hide password text with asterisks
