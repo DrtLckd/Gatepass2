@@ -8,6 +8,8 @@ package gpsystem;
  *
  * @author acer
  */
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.sql.Connection;
 import java.sql.Statement;
 public class registration_dsb extends javax.swing.JFrame {
@@ -18,6 +20,47 @@ public class registration_dsb extends javax.swing.JFrame {
     public registration_dsb() {
         initComponents();
         setLocationRelativeTo(null); // Center the window on the screen
+        
+                // Add KeyListeners for Enter navigation
+        createUserField.addKeyListener(new KeyAdapter() {
+            public void keyPressed(KeyEvent evt) {
+                if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
+                    createPassField.requestFocus();
+                }
+            }
+        });
+
+        createPassField.addKeyListener(new KeyAdapter() {
+            public void keyPressed(KeyEvent evt) {
+                if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
+                    createConfirmPassField.requestFocus();
+                }
+            }
+        });
+
+        createConfirmPassField.addKeyListener(new KeyAdapter() {
+            public void keyPressed(KeyEvent evt) {
+                if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
+                    createEmailField.requestFocus();
+                }
+            }
+        });
+
+        createEmailField.addKeyListener(new KeyAdapter() {
+            public void keyPressed(KeyEvent evt) {
+                if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
+                    createSubmitBtn.requestFocus();
+                }
+            }
+        });
+
+        createSubmitBtn.addKeyListener(new KeyAdapter() {
+            public void keyPressed(KeyEvent evt) {
+                if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
+                    createSubmitBtn.doClick(); // Triggers the submit button click
+                }
+            }
+        });
     }
     //connection method
     Connection con;
