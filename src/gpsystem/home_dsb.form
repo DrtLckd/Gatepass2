@@ -58,10 +58,10 @@
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="extractedTextPane" alignment="1" max="32767" attributes="0"/>
+                  <Component id="extractedTextPane" alignment="1" min="-2" pref="120" max="-2" attributes="0"/>
                   <Group type="102" attributes="0">
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="detectedTextPane" min="-2" pref="119" max="-2" attributes="0"/>
+                          <Component id="detectedTextPane" min="-2" pref="120" max="-2" attributes="0"/>
                           <Component id="jLabel2" alignment="0" min="-2" max="-2" attributes="0"/>
                           <Component id="jLabel1" min="-2" max="-2" attributes="0"/>
                       </Group>
