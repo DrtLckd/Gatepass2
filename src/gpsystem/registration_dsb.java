@@ -33,12 +33,12 @@ public class registration_dsb extends javax.swing.JFrame {
         createPassField.addKeyListener(new KeyAdapter() {
             public void keyPressed(KeyEvent evt) {
                 if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
-                    createConfirmPassField.requestFocus();
+                    confirmPassField.requestFocus();
                 }
             }
         });
 
-        createConfirmPassField.addKeyListener(new KeyAdapter() {
+        confirmPassField.addKeyListener(new KeyAdapter() {
             public void keyPressed(KeyEvent evt) {
                 if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
                     createEmailField.requestFocus();
@@ -90,12 +90,12 @@ public class registration_dsb extends javax.swing.JFrame {
         createUserField = new javax.swing.JTextField();
         showPassBtn = new javax.swing.JToggleButton();
         jLabel7 = new javax.swing.JLabel();
-        createConfirmPassField = new javax.swing.JTextField();
         jLabel2 = new javax.swing.JLabel();
-        createPassField = new javax.swing.JTextField();
         jLabel8 = new javax.swing.JLabel();
         createEmailField = new javax.swing.JTextField();
         showPassBtn1 = new javax.swing.JToggleButton();
+        createPassField = new javax.swing.JPasswordField();
+        confirmPassField = new javax.swing.JPasswordField();
         createCancelBtn = new javax.swing.JToggleButton();
         createSubmitBtn = new javax.swing.JToggleButton();
 
@@ -153,13 +153,12 @@ public class registration_dsb extends javax.swing.JFrame {
 
         jLabel6.setText("Username:");
 
-        createUserField.addActionListener(new java.awt.event.ActionListener() {
+        showPassBtn.setText("Show");
+        showPassBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                createUserFieldActionPerformed(evt);
+                showPassBtn(evt);
             }
         });
-
-        showPassBtn.setText("Show");
 
         jLabel7.setText("Confirm Password:");
 
@@ -168,32 +167,40 @@ public class registration_dsb extends javax.swing.JFrame {
         jLabel8.setText("Email:");
 
         showPassBtn1.setText("Show");
+        showPassBtn1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                showPassBtn1ActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
         jPanel3Layout.setHorizontalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel3Layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addComponent(jLabel8)
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
+                        .addComponent(jLabel6)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(createEmailField, javax.swing.GroupLayout.PREFERRED_SIZE, 190, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(createUserField, javax.swing.GroupLayout.PREFERRED_SIZE, 190, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addComponent(jLabel7)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(createConfirmPassField, javax.swing.GroupLayout.PREFERRED_SIZE, 190, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                        .addGroup(jPanel3Layout.createSequentialGroup()
-                            .addGap(6, 6, 6)
-                            .addComponent(jLabel2)
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(createPassField, javax.swing.GroupLayout.PREFERRED_SIZE, 190, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
-                            .addComponent(jLabel6)
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(createUserField, javax.swing.GroupLayout.PREFERRED_SIZE, 190, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                        .addContainerGap()
+                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addGroup(jPanel3Layout.createSequentialGroup()
+                                .addComponent(jLabel8)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(createEmailField, javax.swing.GroupLayout.PREFERRED_SIZE, 190, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(jPanel3Layout.createSequentialGroup()
+                                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addGroup(jPanel3Layout.createSequentialGroup()
+                                        .addComponent(jLabel7)
+                                        .addGap(9, 9, 9))
+                                    .addGroup(jPanel3Layout.createSequentialGroup()
+                                        .addComponent(jLabel2)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)))
+                                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addComponent(createPassField, javax.swing.GroupLayout.DEFAULT_SIZE, 190, Short.MAX_VALUE)
+                                    .addComponent(confirmPassField, javax.swing.GroupLayout.DEFAULT_SIZE, 190, Short.MAX_VALUE))))))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(showPassBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 19, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -209,14 +216,14 @@ public class registration_dsb extends javax.swing.JFrame {
                     .addComponent(jLabel6))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(createPassField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel2)
-                    .addComponent(showPassBtn))
+                    .addComponent(showPassBtn)
+                    .addComponent(createPassField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(6, 6, 6)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel7)
-                    .addComponent(createConfirmPassField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(showPassBtn1))
+                    .addComponent(showPassBtn1)
+                    .addComponent(confirmPassField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel8)
@@ -226,6 +233,11 @@ public class registration_dsb extends javax.swing.JFrame {
 
         createCancelBtn.setText("Cancel");
         createCancelBtn.setName("registerbtn"); // NOI18N
+        createCancelBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                createCancelBtnActionPerformed(evt);
+            }
+        });
 
         createSubmitBtn.setText("Submit");
         createSubmitBtn.setName("registerbtn"); // NOI18N
@@ -277,9 +289,29 @@ public class registration_dsb extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void createUserFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_createUserFieldActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_createUserFieldActionPerformed
+    private void createCancelBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_createCancelBtnActionPerformed
+        // Open the login_dsb frame
+        new login_dsb().setVisible(true);
+
+        // Close the current registration frame
+        this.dispose();
+    }//GEN-LAST:event_createCancelBtnActionPerformed
+
+    private void showPassBtn(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_showPassBtn
+        if (showPassBtn.isSelected()) {
+            createPassField.setEchoChar((char) 0); // Show password text
+        } else {
+            createPassField.setEchoChar('*'); // Hide password text with asterisks
+        }
+    }//GEN-LAST:event_showPassBtn
+
+    private void showPassBtn1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_showPassBtn1ActionPerformed
+        if (showPassBtn.isSelected()) {
+            confirmPassField.setEchoChar((char) 0); // Show password text
+        } else {
+            confirmPassField.setEchoChar('*'); // Hide password text with asterisks
+        }
+    }//GEN-LAST:event_showPassBtn1ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -318,10 +350,10 @@ public class registration_dsb extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JPasswordField confirmPassField;
     private javax.swing.JToggleButton createCancelBtn;
-    private javax.swing.JTextField createConfirmPassField;
     private javax.swing.JTextField createEmailField;
-    private javax.swing.JTextField createPassField;
+    private javax.swing.JPasswordField createPassField;
     private javax.swing.JToggleButton createSubmitBtn;
     private javax.swing.JTextField createUserField;
     private javax.swing.JLabel jLabel2;
