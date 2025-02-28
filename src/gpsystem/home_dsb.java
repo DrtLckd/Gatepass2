@@ -101,7 +101,14 @@ public class home_dsb extends javax.swing.JFrame {
                 return;
             }
 
-            mediaPlayer.media().play(rtspUrl, ":network-caching=500");
+            String[] options = {
+                ":network-caching=150",  // Reduce buffering from default (1000ms)
+                ":live-caching=150",      // Reduce live caching delay
+                ":hurry-up",              // Decode as fast as possible
+                ":skip-frames",           // Skip rendering frames if needed
+                ":rtsp-tcp"               // Use TCP instead of UDP for stability
+            };
+            mediaPlayer.media().play(rtspUrl, options);
 
             Timer statusCheckTimer = new Timer(2000, new ActionListener() {
                 @Override
