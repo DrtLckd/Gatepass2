@@ -142,12 +142,14 @@ public class detectionAndCaptureServer extends NanoHTTPD {
     private void updateExtractedTextPane(String extractedText) {
         SwingUtilities.invokeLater(() -> {
             if (extractedTextPane != null) {
-                extractedTextPane.setText(extractedText);
+                String existingText = extractedTextPane.getText();
+                extractedTextPane.setText(existingText + "\n" + extractedText);
             } else {
                 System.err.println("ExtractedTextPane is null!");
             }
         });
     }
+
 
     private void captureAndProcessFrame(String snapshotPath, List<Rect> detectedPlates) {
         if (!mediaPlayer.status().isPlaying()) {
@@ -168,6 +170,13 @@ public class detectionAndCaptureServer extends NanoHTTPD {
 
         for (int i = 0; i < detectedPlates.size(); i++) {
             Rect plate = detectedPlates.get(i);
+            
+            // ✅ Validate ROI before processing
+            if (plate.x < 0 || plate.y < 0 || plate.width <= 0 || plate.height <= 0) {
+                System.err.println("❌ Invalid plate region: " + plate);
+                continue;
+            }
+        
             String finalImagePath = folderPath + File.separator + "plate_" + i + "_final.jpg";
 
             try {
@@ -186,7 +195,8 @@ public class detectionAndCaptureServer extends NanoHTTPD {
                     System.out.println("✅ OCR Extracted Text for plate " + i + ": " + extractedText);
                 }
 
-                updateExtractedTextPane(extractedText);
+                // ✅ Append results instead of overwriting
+                updateExtractedTextPane("Plate " + i + ": " + extractedText);
 
             } catch (Exception e) {
                 System.err.println("Error processing plate " + i + ": " + e.getMessage());
