@@ -21,6 +21,8 @@ public class home_dsb extends javax.swing.JFrame {
     private final int maxRecent = 5; // Maximum number of recent IPs to remember
     private detectionAndCaptureServer serverInstance;
     private Thread serverThread;
+    private String currentRtspUrl = "";
+
 
     public home_dsb() {
         initComponents();
@@ -73,6 +75,13 @@ public class home_dsb extends javax.swing.JFrame {
                 JOptionPane.showMessageDialog(null, "An error occurred. Check IP and Port.", "Error", JOptionPane.ERROR_MESSAGE);
                 showUnavailableMessage();
             }
+                @Override
+            public void stopped(MediaPlayer mediaPlayer) {
+                System.out.println("Stream stopped unexpectedly. Reconnecting...");
+                if (!currentRtspUrl.isEmpty()) {
+                    startStream(currentRtspUrl);  // Restart the stream using the saved RTSP URL
+                }
+            }
         });
         setLocationRelativeTo(null); // Center the window on the screen
     }
@@ -80,6 +89,7 @@ public class home_dsb extends javax.swing.JFrame {
     private void startStream(String rtspUrl) {
         System.out.println("Starting stream with URL: " + rtspUrl);
 
+        currentRtspUrl = rtspUrl;
         // Show "Connecting..." message immediately
         showConnectingMessage();
 
@@ -102,15 +112,19 @@ public class home_dsb extends javax.swing.JFrame {
             }
 
             String[] options = {
-                ":network-caching=150",  // Reduce buffering from default (1000ms)
-                ":live-caching=150",      // Reduce live caching delay
-                ":hurry-up",              // Decode as fast as possible
-                ":skip-frames",           // Skip rendering frames if needed
-                ":rtsp-tcp"               // Use TCP instead of UDP for stability
+                ":network-caching=300",  // Reduce buffering from default (1000ms) but keep it stable
+                ":live-caching=300",     // Controls the cache size for live streams
+                ":file-caching=300",     // Ensures smooth playback of stored media
+                ":sout-mux-caching=300", // Prevents lag in output streams
+                ":clock-jitter=0",       // Reduces clock drift and sync issues
+                ":clock-synchro=0",      // Prevents unwanted resyncing
+                ":rtsp-tcp",              // Use TCP for stable connection (UDP can cause frame loss)
+                ":codec=any",            // Let VLC select the best codec
+                ":avcodec-hw=any"        // Enable hardware acceleration if available
             };
             mediaPlayer.media().play(rtspUrl, options);
 
-            Timer statusCheckTimer = new Timer(2000, new ActionListener() {
+            Timer statusCheckTimer = new Timer(1000, new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     ((Timer) e.getSource()).stop();
