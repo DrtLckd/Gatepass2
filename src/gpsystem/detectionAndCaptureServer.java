@@ -68,28 +68,49 @@ public class detectionAndCaptureServer extends NanoHTTPD {
                 session.parseBody(files);
                 String receivedData = files.get("postData");
 
-                if (receivedData != null && !receivedData.isEmpty()) {
-                    System.out.println("Received data: " + receivedData);
+                if (receivedData == null || receivedData.isEmpty()) {
+                    System.err.println("❌ Received empty request payload.");
+                    return newFixedLengthResponse(Response.Status.BAD_REQUEST, "application/json", "{\"error\":\"Empty request payload\"}");
+                }
 
-                    // Parse JSON to extract detection details
+                System.out.println("✅ Received data: " + receivedData);
+
+                // **Try parsing JSON safely**
+                try {
                     com.google.gson.JsonObject jsonObject = com.google.gson.JsonParser.parseString(receivedData).getAsJsonObject();
+                    if (!jsonObject.has("detections")) {
+                        return newFixedLengthResponse(Response.Status.BAD_REQUEST, "application/json", "{\"error\":\"Missing detections array\"}");
+                    }
+
                     com.google.gson.JsonArray detections = jsonObject.getAsJsonArray("detections");
+                    if (detections.size() == 0) {
+                        return newFixedLengthResponse(Response.Status.BAD_REQUEST, "application/json", "{\"error\":\"No detections found\"}");
+                    }
 
                     StringBuilder detectionDetails = new StringBuilder("Detections:\n");
-                    boolean vehicleDetected = false; // Either "car" or "motorcycle"
+                    boolean vehicleDetected = false;
                     List<Rect> detectedPlates = new ArrayList<>();
 
                     for (int i = 0; i < detections.size(); i++) {
                         com.google.gson.JsonObject detection = detections.get(i).getAsJsonObject();
+                        if (!detection.has("type") || !detection.has("coords")) {
+                            System.err.println("❌ Invalid detection format, skipping.");
+                            continue;
+                        }
+
                         String type = detection.get("type").getAsString();
                         com.google.gson.JsonArray coords = detection.getAsJsonArray("coords");
 
-                        detectionDetails.append(type)
-                            .append(" - Coords: [")
-                            .append(coords.get(0).getAsInt()).append(", ")
-                            .append(coords.get(1).getAsInt()).append(", ")
-                            .append(coords.get(2).getAsInt()).append(", ")
-                            .append(coords.get(3).getAsInt()).append("]\n");
+                        if (coords.size() < 4) {
+                            System.err.println("❌ Invalid bounding box format, skipping.");
+                            continue;
+                        }
+
+                        detectionDetails.append(type).append(" - Coords: [")
+                                .append(coords.get(0).getAsInt()).append(", ")
+                                .append(coords.get(1).getAsInt()).append(", ")
+                                .append(coords.get(2).getAsInt()).append(", ")
+                                .append(coords.get(3).getAsInt()).append("]\n");
 
                         if ("car".equals(type) || "motorcycle".equals(type)) {
                             vehicleDetected = true;
@@ -102,24 +123,27 @@ public class detectionAndCaptureServer extends NanoHTTPD {
                         }
                     }
 
-                    // Update detectedTextPane with detection details
                     updateDetectedTextPane(detectionDetails.toString());
 
-                    // If conditions met, capture and process snapshot
+                    // **Only capture frame if both vehicle & plate detected**
                     if (vehicleDetected && !detectedPlates.isEmpty()) {
-                        System.out.println("Conditions met. Capturing snapshot...");
+                        System.out.println("🚗🔍 Conditions met! Capturing snapshot...");
                         String snapshotPath = CAPTURE_DIR + File.separator + System.currentTimeMillis() + ".jpg";
 
                         boolean snapshotResult = mediaPlayer.snapshots().save(new File(snapshotPath));
                         if (snapshotResult) {
-                            System.out.println("Snapshot saved: " + snapshotPath);
+                            System.out.println("📸 Snapshot saved: " + snapshotPath);
                             captureAndProcessFrame(snapshotPath, detectedPlates);
                         } else {
-                            System.out.println("Snapshot failed.");
+                            System.out.println("❌ Snapshot failed.");
                         }
                     }
+
+                    return newFixedLengthResponse(Response.Status.OK, "application/json", "{\"status\":\"snapshot triggered\"}");
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    return newFixedLengthResponse(Response.Status.BAD_REQUEST, "application/json", "{\"error\":\"Invalid JSON format\"}");
                 }
-                return newFixedLengthResponse(Response.Status.OK, "application/json", "{\"status\":\"snapshot triggered\"}");
             } catch (Exception e) {
                 e.printStackTrace();
                 return newFixedLengthResponse(Response.Status.INTERNAL_ERROR, "text/plain", "Error processing request.");
@@ -127,6 +151,7 @@ public class detectionAndCaptureServer extends NanoHTTPD {
         }
         return newFixedLengthResponse(Response.Status.NOT_FOUND, "text/plain", "Not Found");
     }
+
 
 
     private void updateDetectedTextPane(String detections) {
