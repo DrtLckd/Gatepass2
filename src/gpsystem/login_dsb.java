@@ -1,5 +1,7 @@
 package gpsystem;
 
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.sql.*;
 
 public class login_dsb extends javax.swing.JFrame {
@@ -16,6 +18,31 @@ public class login_dsb extends javax.swing.JFrame {
     public login_dsb() {
         initComponents();
         setLocationRelativeTo(null); // Center the window on the screen
+        
+                // Add KeyListeners for Enter navigation
+        userField.addKeyListener(new KeyAdapter() {
+            public void keyPressed(KeyEvent evt) {
+                if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
+                    passField.requestFocus();
+                }
+            }
+        });
+
+        passField.addKeyListener(new KeyAdapter() {
+            public void keyPressed(KeyEvent evt) {
+                if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
+                    loginBtn.requestFocus();
+                }
+            }
+        });
+
+        loginBtn.addKeyListener(new KeyAdapter() {
+            public void keyPressed(KeyEvent evt) {
+                if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
+                    loginBtn.doClick(); // Triggers login action
+                }
+            }
+        });
     }
 
     /**
@@ -49,6 +76,11 @@ public class login_dsb extends javax.swing.JFrame {
             }
             public void focusLost(java.awt.event.FocusEvent evt) {
                 userFieldFocusLost(evt);
+            }
+        });
+        userField.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                userFieldKeyPressed(evt);
             }
         });
 
@@ -288,6 +320,10 @@ public class login_dsb extends javax.swing.JFrame {
             passField.setForeground(java.awt.Color.GRAY);
         }
     }//GEN-LAST:event_passFieldFocusLost
+
+    private void userFieldKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_userFieldKeyPressed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_userFieldKeyPressed
 
     /**
      * @param args the command line arguments

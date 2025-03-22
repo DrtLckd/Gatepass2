@@ -52,6 +52,8 @@ public class sidebar_dsb extends javax.swing.JPanel {
         homeBtn = new javax.swing.JButton();
         processBtn = new javax.swing.JButton();
         galleryBtn = new javax.swing.JButton();
+        consoleBtn = new javax.swing.JButton();
+        historyBtn = new javax.swing.JButton();
 
         jDesktopPane1.setBackground(new java.awt.Color(0, 0, 102));
 
@@ -103,9 +105,43 @@ public class sidebar_dsb extends javax.swing.JPanel {
             }
         });
 
+        consoleBtn.setFont(new java.awt.Font("Helvetica", 1, 25)); // NOI18N
+        consoleBtn.setForeground(new java.awt.Color(255, 255, 255));
+        consoleBtn.setText("CONSOLE");
+        consoleBtn.setBorder(null);
+        consoleBtn.setBorderPainted(false);
+        consoleBtn.setContentAreaFilled(false);
+        consoleBtn.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        consoleBtn.setMaximumSize(new java.awt.Dimension(68, 23));
+        consoleBtn.setMinimumSize(new java.awt.Dimension(68, 23));
+        consoleBtn.setRequestFocusEnabled(false);
+        consoleBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                consoleBtnActionPerformed(evt);
+            }
+        });
+
+        historyBtn.setFont(new java.awt.Font("Helvetica", 1, 25)); // NOI18N
+        historyBtn.setForeground(new java.awt.Color(255, 255, 255));
+        historyBtn.setText("HISTORY");
+        historyBtn.setBorder(null);
+        historyBtn.setBorderPainted(false);
+        historyBtn.setContentAreaFilled(false);
+        historyBtn.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        historyBtn.setMaximumSize(new java.awt.Dimension(68, 23));
+        historyBtn.setMinimumSize(new java.awt.Dimension(68, 23));
+        historyBtn.setRequestFocusEnabled(false);
+        historyBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                historyBtnActionPerformed(evt);
+            }
+        });
+
         jDesktopPane1.setLayer(homeBtn, javax.swing.JLayeredPane.DEFAULT_LAYER);
         jDesktopPane1.setLayer(processBtn, javax.swing.JLayeredPane.DEFAULT_LAYER);
         jDesktopPane1.setLayer(galleryBtn, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        jDesktopPane1.setLayer(consoleBtn, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        jDesktopPane1.setLayer(historyBtn, javax.swing.JLayeredPane.DEFAULT_LAYER);
 
         javax.swing.GroupLayout jDesktopPane1Layout = new javax.swing.GroupLayout(jDesktopPane1);
         jDesktopPane1.setLayout(jDesktopPane1Layout);
@@ -113,10 +149,14 @@ public class sidebar_dsb extends javax.swing.JPanel {
             jDesktopPane1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jDesktopPane1Layout.createSequentialGroup()
                 .addGap(24, 24, 24)
-                .addGroup(jDesktopPane1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(galleryBtn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(processBtn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(homeBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 148, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(jDesktopPane1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jDesktopPane1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                        .addComponent(consoleBtn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(historyBtn, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jDesktopPane1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                        .addComponent(galleryBtn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(processBtn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(homeBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 148, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(33, Short.MAX_VALUE))
         );
         jDesktopPane1Layout.setVerticalGroup(
@@ -128,7 +168,11 @@ public class sidebar_dsb extends javax.swing.JPanel {
                 .addComponent(processBtn, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(galleryBtn, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(461, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(historyBtn, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(consoleBtn, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(377, Short.MAX_VALUE))
         );
 
         processBtn.getAccessibleContext().setAccessibleDescription("");
@@ -160,33 +204,48 @@ public class sidebar_dsb extends javax.swing.JPanel {
     }//GEN-LAST:event_homeBtnActionPerformed
 
     private void processBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_processBtnActionPerformed
-//        JOptionPane.showMessageDialog(this, "\"RFQ\" Is Pressed");
-        closeAllFrames(); // Close all open frames
         JFrame currentFrame = (JFrame) javax.swing.SwingUtilities.getWindowAncestor(this);
         if (currentFrame != null) {
             currentFrame.dispose();
         }
-        preprocess_dsb preprocess_dsb = new preprocess_dsb(); // Create a new RFQ_dsb frame
-        preprocess_dsb.setVisible(true); // Set the new frame to visible
-        openFrames.add(preprocess_dsb); // Add the new frame to the list of open frames
+        process_dsb preprocess = new process_dsb(); // Create a new RFQ_dsb frame
+        preprocess.setVisible(true); // Set the new frame to visible
+        openFrames.add(preprocess); // Add the new frame to the list of open frames
     }//GEN-LAST:event_processBtnActionPerformed
 
     private void galleryBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_galleryBtnActionPerformed
-        closeAllFrames(); // Close all open frames
         JFrame currentFrame = (JFrame) javax.swing.SwingUtilities.getWindowAncestor(this);
         if (currentFrame != null) {
             currentFrame.dispose();
         }
 
             // Open the Embedded File Explorer
-        gallery_dsb gallery_dsb = new gallery_dsb(); // Create a new bidding_dsb frame
-        gallery_dsb.setVisible(true); // Set the new frame to visible
-        openFrames.add(gallery_dsb); // Add the new frame to the list of open frames   
+        gallery_dsb gallery = new gallery_dsb(); // Create a new bidding_dsb frame
+        gallery.setVisible(true); // Set the new frame to visible
+        openFrames.add(gallery); // Add the new frame to the list of open frames   
     }//GEN-LAST:event_galleryBtnActionPerformed
+
+    private void consoleBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_consoleBtnActionPerformed
+        JFrame currentFrame = (JFrame) javax.swing.SwingUtilities.getWindowAncestor(this);
+        if (currentFrame != null) {
+            currentFrame.dispose();
+        }
+
+            // Open the Embedded File Explorer
+        console_dsb console = new console_dsb(); // Create a new bidding_dsb frame
+        console.setVisible(true); // Set the new frame to visible
+        openFrames.add(console); // Add the new frame to the list of open frames 
+    }//GEN-LAST:event_consoleBtnActionPerformed
+
+    private void historyBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_historyBtnActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_historyBtnActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton consoleBtn;
     private javax.swing.JButton galleryBtn;
+    private javax.swing.JButton historyBtn;
     private javax.swing.JButton homeBtn;
     private javax.swing.JDesktopPane jDesktopPane1;
     private javax.swing.JButton processBtn;

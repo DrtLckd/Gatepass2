@@ -3,199 +3,51 @@ package gpsystem;
 import javax.swing.*;
 import java.awt.*;
 import java.io.File;
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
-import java.util.HashMap;
-import java.util.Map;
-import javax.swing.border.EmptyBorder;
 
 public class gallery_dsb extends JFrame {
 
-    private JPanel filePanel;
-    private JTextArea textArea;
+    private static final String IMAGE_DIR = "captures"; // Folder containing images
+    private JButton openFolderButton;
     private JButton backButton;
-    private static final String IMAGE_DIR = "captures";         
-    private static final int THUMBNAIL_WIDTH = 150; // Width of each thumbnail
-    private static final int THUMBNAIL_HEIGHT = 100; // Height of each thumbnail
-    private File currentDirectory; // Keep track of the current directory
-    private Map<File, ImageIcon> thumbnailCache = new HashMap<>(); // Cache for thumbnails
 
-  
-  public gallery_dsb() {
-        setTitle("Gallery - Embedded File Explorer");
-        setSize(800, 600);
+    public gallery_dsb() {
+        setTitle("Gallery - Open Folder");
+        setSize(400, 200);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLayout(new BorderLayout());
 
-        // Create a JPanel as the main content container
-        JPanel contentPane = new JPanel(new BorderLayout(10, 10));
-        contentPane.setBorder(new EmptyBorder(30, 30, 30, 30)); // Add 5% margins
-        setContentPane(contentPane); // Set this panel as the content pane
-
-        // Initialize components
         initializeComponents();
         setLocationRelativeTo(null);
-        
-        // Load files from the default directory
-        currentDirectory = new File(IMAGE_DIR); // Replace with your directory path
-        loadFiles(currentDirectory);
     }
 
     private void initializeComponents() {
-        createScrollableFilePanel();
-        createTextArea();
-        createBackButton();
-    }
+        JPanel panel = new JPanel(new GridLayout(2, 1, 10, 10));
 
-    private void createScrollableFilePanel() {
-        filePanel = new JPanel();
-        filePanel.setLayout(new GridBagLayout());
-        JScrollPane scrollPane = new JScrollPane(filePanel, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-        getContentPane().add(scrollPane, BorderLayout.CENTER);
-    }
+        openFolderButton = new JButton("Open Gallery Folder");
+        openFolderButton.addActionListener(e -> openGalleryFolder());
 
-    private void createTextArea() {
-        textArea = new JTextArea();
-        textArea.setEditable(false);
-        textArea.setText("Click on a picture to see its name...");
-        JScrollPane textScrollPane = new JScrollPane(textArea);
-        textScrollPane.setPreferredSize(new Dimension(getWidth() / 4, getHeight() / 6));
-        getContentPane().add(textScrollPane, BorderLayout.SOUTH);
-    }
-
-    private void createBackButton() {
         backButton = new JButton("Back");
-        backButton.addActionListener(e -> goBack());
-        JPanel topRightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        topRightPanel.add(backButton);
-        getContentPane().add(topRightPanel, BorderLayout.NORTH);
+        backButton.addActionListener(e -> dispose()); // Closes the window
+
+        panel.add(openFolderButton);
+        panel.add(backButton);
+
+        add(panel, BorderLayout.CENTER);
     }
 
-    private void goBack() {
-        if (currentDirectory.getParentFile() != null) {
-            currentDirectory = currentDirectory.getParentFile();
-            loadFiles(currentDirectory);
-        } else {
-            textArea.setText("Already at the root directory.");
-        }
-    }
-
-    private int calculateColumns() {
-        int availableWidth = filePanel.getWidth(); // Dynamically calculate available width
-        return Math.max(1, availableWidth / (THUMBNAIL_WIDTH + 20)); // Ensure at least 1 column
-    }
-
-    private ImageIcon getThumbnail(File file) {
-        return thumbnailCache.computeIfAbsent(file, f -> {
-            try {
-                BufferedImage img = ImageIO.read(f);
-                if (img != null) {
-                    Image scaledImg = img.getScaledInstance(THUMBNAIL_WIDTH, THUMBNAIL_HEIGHT, Image.SCALE_SMOOTH);
-                    return new ImageIcon(scaledImg);
-                }
-            } catch (Exception e) {
-                System.err.println("Error loading thumbnail: " + f.getName());
-            }
-            return null;
-        });
-    }
-    
-    private void loadFiles(File directory) {
+    private void openGalleryFolder() {
+        File directory = new File(IMAGE_DIR);
         if (!directory.exists() || !directory.isDirectory()) {
-            JOptionPane.showMessageDialog(this, "Invalid directory: " + directory.getAbsolutePath(), "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Folder not found: " + IMAGE_DIR, "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
-        currentDirectory = directory;
-        updateBreadcrumbs();
-
-        filePanel.removeAll();
-        File[] files = directory.listFiles(file -> file.isDirectory() || file.getName().matches(".*\\.(jpg|png|jpeg)$"));
-
-        if (files == null || files.length == 0) {
-            filePanel.add(new JLabel("No images or folders to display."));
-        } else {
-            int columns = calculateColumns();
-            GridBagConstraints gbc = new GridBagConstraints();
-            gbc.insets = new Insets(10, 10, 10, 10);
-            gbc.gridx = 0;
-            gbc.gridy = 0;
-
-            for (File file : files) {
-                if (file.isDirectory()) {
-                    addFolderPreview(file, gbc);
-                } else if (file.isFile()) {
-                    addFilePreview(file, gbc);
-                }
-
-                gbc.gridx++;
-                if (gbc.gridx >= columns) {
-                    gbc.gridx = 0;
-                    gbc.gridy++;
-                }
-            }
+        try {
+            Desktop.getDesktop().open(directory);
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Failed to open folder!", "Error", JOptionPane.ERROR_MESSAGE);
         }
-
-        filePanel.revalidate();
-        filePanel.repaint();
-    }
-    
-    private void addFolderPreview(File folder, GridBagConstraints gbc) {
-        JLabel folderLabel = new JLabel("📁 " + folder.getName());
-        folderLabel.setToolTipText("Folder: " + folder.getName());
-        folderLabel.setHorizontalAlignment(SwingConstants.LEFT);
-        folderLabel.setBorder(BorderFactory.createLineBorder(Color.BLUE));
-        folderLabel.setPreferredSize(new Dimension(THUMBNAIL_WIDTH, 40));
-        folderLabel.addMouseListener(new java.awt.event.MouseAdapter() {
-            @Override
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                loadFiles(folder);
-            }
-        });
-
-        filePanel.add(folderLabel, gbc);
-    }
-
-    private void addFilePreview(File file, GridBagConstraints gbc) {
-        JLabel imageLabel = new JLabel("Loading...");
-        filePanel.add(imageLabel, gbc);
-
-        SwingWorker<ImageIcon, Void> worker = new SwingWorker<>() {
-            @Override
-            protected ImageIcon doInBackground() {
-                return getThumbnail(file);
-            }
-
-            @Override
-            protected void done() {
-                try {
-                    imageLabel.setIcon(get());
-                    imageLabel.setText(null); // Remove "Loading..."
-                    imageLabel.setToolTipText(file.getName());
-                    imageLabel.setBorder(BorderFactory.createLineBorder(Color.GRAY));
-                    imageLabel.addMouseListener(new java.awt.event.MouseAdapter() {
-                        @Override
-                        public void mouseClicked(java.awt.event.MouseEvent e) {
-                            textArea.setText(file.getName());
-                        }
-                    });
-                } catch (Exception e) {
-                    imageLabel.setText("Failed to load");
-                    System.err.println("Error loading file: " + file.getName());
-                }
-            }
-        };
-
-        worker.execute();
-    }
-
-    private void updateBreadcrumbs() {
-        StringBuilder breadcrumbs = new StringBuilder();
-        File parent = currentDirectory;
-        while (parent != null) {
-            breadcrumbs.insert(0, parent.getName() + " > ");
-            parent = parent.getParentFile();
-        }
-        textArea.setText(breadcrumbs.toString());
     }
         
     /**
@@ -236,11 +88,6 @@ public class gallery_dsb extends JFrame {
         SwingUtilities.invokeLater(() -> {
             gallery_dsb gallery = new gallery_dsb();
             gallery.setVisible(true);
-
-            SwingUtilities.invokeLater(() -> {
-                gallery.getContentPane().revalidate();
-                gallery.getContentPane().repaint();
-            });
         });
     }
 
